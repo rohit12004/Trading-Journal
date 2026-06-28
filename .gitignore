@@ -1,0 +1,51 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node dependencies
+node_modules/
+jspm_packages/
+
+# Build directories
+dist/
+build/
+.next/
+out/
+
+# Environment files (Secrets - NEVER commit these!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and databases
+*.log
+local_database.db
+mysql_data/
+redis_data/
+neo4j_data/

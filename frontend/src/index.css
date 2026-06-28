@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutral-950 text-slate-100 antialiased selection:bg-violet-500 selection:text-white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Glassmorphism custom helpers */
+.glass-panel {
+  @apply backdrop-blur-md bg-white/5 border border-white/10 shadow-2xl;
+}
+
+.glass-input {
+  @apply bg-white/5 border border-white/10 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 text-white rounded-lg px-4 py-2.5 transition-all outline-none;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+/* Light scrollbar for white card panels */
+.light-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.light-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.light-scroll::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+.light-scroll::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
