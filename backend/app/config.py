@@ -27,9 +27,9 @@ class Settings:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 
     # Neo4j Settings (for Graph Memory)
-    NEO4J_URI: str = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-    NEO4J_USER: str = os.getenv("NEO4J_USER", "neo4j")
-    NEO4J_PASSWORD: str = os.getenv("NEO4J_PASSWORD", "secure_pass_123")
+    NEO4J_URI: str = os.getenv("GRAPH_URI", "bolt://localhost:7687")
+    NEO4J_USER: str = os.getenv("GRAPH_USER", "neo4j")
+    NEO4J_PASSWORD: str = os.getenv("GRAPH_PASSWORD", "trading@12004")
 
     # SMTP Configuration
     EMAILS_ENABLED: bool = os.getenv("EMAILS_ENABLED", "False").lower() == "true"

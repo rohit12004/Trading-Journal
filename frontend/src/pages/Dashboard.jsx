@@ -20,6 +20,7 @@ import TodayTradesTable from "../components/TodayTradesTable";
 import TradeHistory from "../components/TradeHistory";
 import ProfileSettings from "../components/ProfileSettings";
 import TradingCalendar from "../components/TradingCalendar";
+import AICoach from "../components/AICoach";
 
 // ─── Initial form state ───────────────────────────────────────────────────────
 const DEFAULT_TRADE_FORM = {
@@ -33,6 +34,7 @@ const DEFAULT_TRADE_FORM = {
   strikePrice: "",
   pnlAmount: "",
   commission: "",
+  date: new Date().toISOString().split("T")[0],
   entryTime: "",
   exitTime: "",
   strategy: "",
@@ -154,7 +156,7 @@ const Dashboard = () => {
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleLogTradeSubmit = async (e) => {
     e.preventDefault();
-    const { symbol, quantity, direction, assetClass, entryPrice, exitPrice, strikePrice, entryTime, exitTime, strategy, notes } = tradeForm;
+    const { symbol, quantity, direction, assetClass, entryPrice, exitPrice, strikePrice, date, entryTime, exitTime, strategy, notes } = tradeForm;
 
     if (!symbol || !quantity) {
       toast.error("Please fill in all required trade fields.");
@@ -193,6 +195,7 @@ const Dashboard = () => {
         notes:       notes      || null,
         entry_price: parseFloat(entryPrice),
         exit_price:  parseFloat(exitPrice),
+        timestamp:   date ? `${date}T${entryTime || "00:00"}:00` : null,
       };
       if (assetClass === "OPTIONS") {
         payload.strike_price = strikePrice ? parseFloat(strikePrice) : null;
@@ -206,9 +209,11 @@ const Dashboard = () => {
         direction:  assetClass === "OPTIONS" ? "CALL" : "BUY",
         assetClass,
       });
+      return true;
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.detail || "Failed to log trade.");
+      return false;
     }
   };
 
@@ -385,6 +390,13 @@ const Dashboard = () => {
             trades={trades}
             onDayClick={handleCalendarDayClick}
           />
+        )}
+
+        {/* Tab F — AI Coach & Journal */}
+        {activeTab === "AICoach" && (
+          <div className="flex-1 overflow-hidden p-6 md:p-8 flex flex-col">
+            <AICoach />
+          </div>
         )}
 
         {/* Tab D — Profile & Settings */}

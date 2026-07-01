@@ -129,20 +129,19 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
           </h1>
           <p className="text-slate-500 text-xs">View your trading activity daily. Hover for exact P/L and click to view trades.</p>
         </div>
-        <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner gap-0.5 max-w-full overflow-x-auto self-start sm:self-center">
-          {Array.from({ length: 3 }, (_, i) => new Date().getFullYear() - 2 + i).map((yr) => (
-            <button
-              key={yr}
-              onClick={() => setCurrentYear(yr)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                currentYear === yr
-                  ? "bg-white text-slate-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              {yr}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Year:</span>
+          <select
+            value={currentYear}
+            onChange={(e) => setCurrentYear(parseInt(e.target.value))}
+            className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-xl px-3.5 py-1.5 text-xs font-bold text-slate-750 outline-none shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+          >
+            {Array.from({ length: new Date().getFullYear() - 2020 + 3 }, (_, i) => 2020 + i).map((yr) => (
+              <option key={yr} value={yr}>
+                {yr}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

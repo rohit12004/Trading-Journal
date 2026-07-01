@@ -11,6 +11,7 @@ from app.db.base import Base
 from app.models.user import User, Account, RefreshToken
 from app.models.trade import Trade
 from app.models.capital_transaction import CapitalTransaction
+from app.models.journal import JournalEntry
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

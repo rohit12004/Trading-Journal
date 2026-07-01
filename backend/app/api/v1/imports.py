@@ -41,7 +41,21 @@ async def preview_imports(
                 detail="Could not find any readable rows in sheet1. Please check if the file is empty or formatted incorrectly."
             )
             
-        trades = BrokerParser.parse_groww_fno(rows)
+        # Detect if it's a Stocks or F&O statement
+        is_stocks = False
+        for row in rows[:15]:
+            row_vals = [str(val).upper() for val in row.values() if val]
+            for val in row_vals:
+                if "STATEMENT FOR STOCKS" in val or "STOCK NAME" in val or "REALISED TRADES" in val:
+                    is_stocks = True
+                    break
+            if is_stocks:
+                break
+
+        if is_stocks:
+            trades = BrokerParser.parse_groww_stocks(rows)
+        else:
+            trades = BrokerParser.parse_groww_fno(rows)
         return trades
         
     except Exception as e:

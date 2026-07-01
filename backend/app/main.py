@@ -11,6 +11,7 @@ from app.api.v1.accounts import router as accounts_router
 from app.api.v1.capital_transactions import router as capital_transactions_router
 from app.api.v1.imports import router as imports_router
 from app.api.v1.ai import router as ai_router
+from app.api.v1.journal import router as journal_router
 from app.db.base import Base
 from app.db.session import engine, SessionLocal
 
@@ -18,6 +19,7 @@ from app.db.session import engine, SessionLocal
 from app.models.user import User, Account, RefreshToken
 from app.models.trade import Trade
 from app.models.capital_transaction import CapitalTransaction
+from app.models.journal import JournalEntry
 
 
 from alembic import command
@@ -69,6 +71,7 @@ app.include_router(accounts_router, prefix=f"{settings.API_V1_STR}/accounts", ta
 app.include_router(capital_transactions_router, prefix=f"{settings.API_V1_STR}/capital-transactions", tags=["Capital Transactions"])
 app.include_router(imports_router, prefix=f"{settings.API_V1_STR}/imports", tags=["Broker Imports"])
 app.include_router(ai_router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI Services"])
+app.include_router(journal_router, prefix=f"{settings.API_V1_STR}/journal", tags=["Daily Journal"])
 
 @app.get("/")
 def read_root():

@@ -69,16 +69,14 @@ class BrokerParser:
     @staticmethod
     def parse_groww_date(date_str: str) -> datetime:
         """
-        Parses date string format from Groww statement (e.g. '16 Jun 2026') into datetime.
+        Parses date string format from Groww statement (e.g. '16 Jun 2026' or '22-04-2025') into datetime.
         """
-        try:
-            return datetime.strptime(date_str.strip(), "%d %b %Y")
-        except ValueError:
+        for fmt in ("%d %b %Y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
             try:
-                # fallback formats
-                return datetime.strptime(date_str.strip(), "%Y-%m-%d")
+                return datetime.strptime(date_str.strip(), fmt)
             except ValueError:
-                return datetime.utcnow()
+                continue
+        return datetime.utcnow()
 
     @staticmethod
     def parse_groww_fno(rows: List[Dict[str, str]]) -> List[Dict[str, Any]]:
@@ -221,5 +219,94 @@ class BrokerParser:
                     "asset_class": current_section,
                     "timestamp": entry_date.isoformat(),
                     "notes": f"Imported: {scrip_name}. Realized P&L: ₹{realized_pnl:.2f}",
+                })
+        return trades
+
+    @staticmethod
+    def parse_groww_stocks(rows: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """
+        Parse trades from Groww Stocks report list of row dicts.
+        We scan for the section: 'Realised trades'.
+        """
+        trades = []
+        header_map = {}
+        in_trades_block = False
+
+        for row in rows:
+            row_vals = [val.strip() for val in row.values() if val]
+            if not row_vals:
+                continue
+                
+            first_val = row_vals[0]
+            if "Unrealised trades" in first_val or "Disclaimer" in first_val:
+                break
+                
+            if "Stock name" in row_vals and "Quantity" in row_vals:
+                header_map = {col: val.strip() for col, val in row.items()}
+                in_trades_block = True
+                continue
+                
+            if in_trades_block:
+                stock_name = ""
+                qty_str = "0"
+                buy_date_str = ""
+                buy_price_str = "0"
+                sell_date_str = ""
+                sell_price_str = "0"
+                realized_pnl_str = "0"
+                
+                for col, val in row.items():
+                    header = header_map.get(col, "")
+                    if header == "Stock name":
+                        stock_name = val
+                    elif header == "Quantity":
+                        qty_str = val
+                    elif header == "Buy date":
+                        buy_date_str = val
+                    elif header == "Buy price":
+                        buy_price_str = val
+                    elif header == "Sell date":
+                        sell_date_str = val
+                    elif header == "Sell price":
+                        sell_price_str = val
+                    elif header == "Realised P&L":
+                        realized_pnl_str = val
+                        
+                if not stock_name or qty_str == "" or realized_pnl_str == "":
+                    continue
+                    
+                try:
+                    qty = float(qty_str)
+                    buy_price = float(buy_price_str)
+                    sell_price = float(sell_price_str)
+                    realized_pnl = float(realized_pnl_str)
+                except ValueError:
+                    continue
+                    
+                direction = "BUY"
+                if realized_pnl < 0 and sell_price > buy_price:
+                    direction = "SELL"
+                elif realized_pnl > 0 and buy_price > sell_price:
+                    direction = "SELL"
+                    
+                symbol = stock_name
+                words = stock_name.strip().split()
+                if words:
+                    symbol = words[0].upper()
+                    
+                entry_date = BrokerParser.parse_groww_date(buy_date_str)
+                
+                trades.append({
+                    "symbol": symbol.strip(),
+                    "direction": direction,
+                    "quantity": qty,
+                    "entry_price": buy_price,
+                    "exit_price": sell_price,
+                    "strike_price": None,
+                    "pnl": realized_pnl,
+                    "status": "CLOSED",
+                    "asset_class": "STOCKS",
+                    "timestamp": entry_date.isoformat(),
+                    "notes": f"Imported: {stock_name}. Realised P&L: \u20b9{realized_pnl:.2f}",
                 })
         return trades

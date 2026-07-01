@@ -26,6 +26,19 @@ services:
     volumes:
       - redis_data:/data
 
+  neo4j:
+    image: neo4j:5.12.0
+    container_name: trading_journal_neo4j
+    restart: always
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - neo4j_data:/data
+
 volumes:
   mysql_data:
   redis_data:
+  neo4j_data:

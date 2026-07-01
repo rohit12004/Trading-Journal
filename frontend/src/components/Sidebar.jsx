@@ -7,6 +7,7 @@ import {
   Settings,
   Zap,
   History,
+  Bot,
 } from "lucide-react";
 
 const Logo = () => (
@@ -22,6 +23,7 @@ const Sidebar = ({ activeTab, setActiveTab, getFullName, logout }) => {
   const navItems = [
     { key: "Dashboard", label: "Dashboard", icon: <BarChart3 className="w-4 h-4 text-violet-600" /> },
     { key: "Trades",    label: "Trades (Log)", icon: <Zap className="w-4 h-4 text-emerald-600" /> },
+    { key: "AICoach",   label: "AI Coach",     icon: <Bot className="w-4 h-4 text-violet-650" /> },
     { key: "Calendar",  label: "Calendar",     icon: <CalendarIcon className="w-4 h-4 text-amber-600" /> },
     { key: "History",   label: "History",      icon: <History className="w-4 h-4 text-indigo-600" /> },
   ];
