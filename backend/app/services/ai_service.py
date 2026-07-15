@@ -123,45 +123,43 @@ class AIService:
             print(f"Error in Gemini note refinement: {e}")
             return raw_notes
 
-    def process_voice_log(self, audio_bytes: bytes, filename: str, client_date: Optional[str] = None) -> dict:
+
+
+    async def process_voice_log_async(self, audio_bytes: bytes, filename: str, client_date: Optional[str] = None) -> dict:
         """
-        Uploads audio to Gemini 3.5 Flash, transcribes it, and extracts structured trade parameters.
+        Uploads audio to Gemini 3.5 Flash, transcribes it, and extracts structured trade parameters asynchronously.
         """
         import os
         import tempfile
         import json
         import datetime
 
-        # Force a supported audio extension and MIME type.
-        # Since the browser sends audio/webm containing Opus streams, we map it to .ogg 
-        # and force the audio/ogg MIME type which is supported by Gemini.
         if filename.endswith(".webm"):
             filename = filename[:-5] + ".ogg"
 
-        # Determine reference date
         if not client_date:
             client_date = datetime.date.today().strftime("%Y-%m-%d")
 
-        print(f"[DEBUG] process_voice_log: Initializing voice log processing for file {filename}. Reference Date: {client_date}", flush=True)
+        print(f"[DEBUG] process_voice_log_async: Initializing voice log processing for file {filename}. Reference Date: {client_date}", flush=True)
         logger.info(f"Processing voice log {filename} of size {len(audio_bytes)} bytes. Reference Date: {client_date}")
 
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, filename)
         
         try:
-            print(f"[DEBUG] process_voice_log: Writing {len(audio_bytes)} bytes to temporary file: {temp_path}", flush=True)
+            print(f"[DEBUG] process_voice_log_async: Writing {len(audio_bytes)} bytes to temporary file: {temp_path}", flush=True)
             with open(temp_path, "wb") as f:
                 f.write(audio_bytes)
                 
-            print(f"[DEBUG] process_voice_log: Uploading audio file to Gemini Files API...", flush=True)
+            print(f"[DEBUG] process_voice_log_async: Uploading audio file to Gemini Files API...", flush=True)
             logger.info("Uploading audio file to Gemini Files API...")
-            uploaded_file = self.client.files.upload(
+            uploaded_file = await self.client.aio.files.upload(
                 file=temp_path,
                 config=types.UploadFileConfig(
                     mime_type="audio/ogg"
                 )
             )
-            print(f"[DEBUG] process_voice_log: Gemini file upload completed successfully. Gemini Name: {uploaded_file.name}, MIME: {uploaded_file.mime_type}", flush=True)
+            print(f"[DEBUG] process_voice_log_async: Gemini file upload completed successfully. Gemini Name: {uploaded_file.name}, MIME: {uploaded_file.mime_type}", flush=True)
             logger.info(f"Gemini file upload successful: {uploaded_file.name}")
             
             system_instruction = (
@@ -177,10 +175,10 @@ class AIService:
                 "Please transcribe this voice trading log, and extract the trade details into the response schema."
             )
             
-            print(f"[DEBUG] process_voice_log: Sending request to Gemini (model: {self.model}) with response schema...", flush=True)
+            print(f"[DEBUG] process_voice_log_async: Sending request to Gemini (model: {self.model}) with response schema...", flush=True)
             logger.info("Sending request to Gemini model for transcription and structure extraction...")
             
-            interaction = self.client.interactions.create(
+            interaction = await self.client.aio.interactions.create(
                 model="gemini-3.5-flash",
                 input=[
                     {"type": "audio", "uri": uploaded_file.uri, "mime_type": uploaded_file.mime_type},
@@ -194,14 +192,14 @@ class AIService:
                 }
             )
             
-            print(f"[DEBUG] process_voice_log: Gemini response received.", flush=True)
+            print(f"[DEBUG] process_voice_log_async: Gemini response received.", flush=True)
             
             try:
-                print(f"[DEBUG] process_voice_log: Deleting uploaded file {uploaded_file.name} from Gemini...", flush=True)
-                self.client.files.delete(name=uploaded_file.name)
-                print(f"[DEBUG] process_voice_log: Successfully deleted file {uploaded_file.name} from Gemini.", flush=True)
+                print(f"[DEBUG] process_voice_log_async: Deleting uploaded file {uploaded_file.name} from Gemini...", flush=True)
+                await self.client.aio.files.delete(name=uploaded_file.name)
+                print(f"[DEBUG] process_voice_log_async: Successfully deleted file {uploaded_file.name} from Gemini.", flush=True)
             except Exception as delete_err:
-                print(f"[ERROR] process_voice_log: Failed to delete uploaded file from Gemini: {delete_err}", flush=True)
+                print(f"[ERROR] process_voice_log_async: Failed to delete uploaded file from Gemini: {delete_err}", flush=True)
                 logger.error(f"Failed to delete uploaded file from Gemini: {delete_err}")
                 
             raw_text = interaction.output_text
@@ -212,62 +210,60 @@ class AIService:
                     raw_text = last_step.content[0].text
                     
             if raw_text:
-                print(f"[DEBUG] process_voice_log: Raw response from Gemini: {raw_text}", flush=True)
+                print(f"[DEBUG] process_voice_log_async: Raw response from Gemini: {raw_text}", flush=True)
                 logger.info("Raw response from Gemini extracted successfully.")
                 parsed_data = json.loads(raw_text)
-                print(f"[DEBUG] process_voice_log: Successfully parsed JSON response from Gemini.", flush=True)
+                print(f"[DEBUG] process_voice_log_async: Successfully parsed JSON response from Gemini.", flush=True)
                 return parsed_data
             else:
                 raise ValueError("No response text received from Gemini.")
                 
         except Exception as err:
-            print(f"[ERROR] process_voice_log: Exception occurred during voice processing: {err}", flush=True)
-            logger.error("Exception during process_voice_log", exc_info=True)
+            print(f"[ERROR] process_voice_log_async: Exception occurred during voice processing: {err}", flush=True)
+            logger.error("Exception during process_voice_log_async", exc_info=True)
             raise err
         finally:
             if os.path.exists(temp_path):
                 try:
                     os.remove(temp_path)
-                    print(f"[DEBUG] process_voice_log: Cleaned up temporary file: {temp_path}", flush=True)
+                    print(f"[DEBUG] process_voice_log_async: Cleaned up temporary file: {temp_path}", flush=True)
                 except Exception as rm_err:
-                    print(f"[ERROR] process_voice_log: Failed to delete local temp file: {rm_err}", flush=True)
+                    print(f"[ERROR] process_voice_log_async: Failed to delete local temp file: {rm_err}", flush=True)
 
-    def process_voice_journal(self, audio_bytes: bytes, filename: str, client_date: Optional[str] = None) -> dict:
+    async def process_voice_journal_async(self, audio_bytes: bytes, filename: str, client_date: Optional[str] = None) -> dict:
         """
-        Uploads audio to Gemini 3.5 Flash, transcribes it, and extracts the target journal date.
+        Uploads audio to Gemini 3.5 Flash, transcribes it, and extracts the target journal date asynchronously.
         """
         import os
         import tempfile
         import json
         import datetime
 
-        # Force a supported audio extension and MIME type.
         if filename.endswith(".webm"):
             filename = filename[:-5] + ".ogg"
 
-        # Determine reference date
         if not client_date:
             client_date = datetime.date.today().strftime("%Y-%m-%d")
 
-        print(f"[DEBUG] process_voice_journal: Initializing voice journal processing for file {filename}. Reference Date: {client_date}", flush=True)
+        print(f"[DEBUG] process_voice_journal_async: Initializing voice journal processing for file {filename}. Reference Date: {client_date}", flush=True)
 
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, filename)
         
         try:
-            print(f"[DEBUG] process_voice_journal: Writing {len(audio_bytes)} bytes to temporary file: {temp_path}", flush=True)
+            print(f"[DEBUG] process_voice_journal_async: Writing {len(audio_bytes)} bytes to temporary file: {temp_path}", flush=True)
             with open(temp_path, "wb") as f:
                 f.write(audio_bytes)
                 
-            print(f"[DEBUG] process_voice_journal: Uploading audio file to Gemini Files API...", flush=True)
+            print(f"[DEBUG] process_voice_journal_async: Uploading audio file to Gemini Files API...", flush=True)
             logger.info("Uploading audio file to Gemini Files API...")
-            uploaded_file = self.client.files.upload(
+            uploaded_file = await self.client.aio.files.upload(
                 file=temp_path,
                 config=types.UploadFileConfig(
                     mime_type="audio/ogg"
                 )
             )
-            print(f"[DEBUG] process_voice_journal: Gemini file upload completed successfully. Gemini Name: {uploaded_file.name}, MIME: {uploaded_file.mime_type}", flush=True)
+            print(f"[DEBUG] process_voice_journal_async: Gemini file upload completed successfully. Gemini Name: {uploaded_file.name}, MIME: {uploaded_file.mime_type}", flush=True)
             logger.info(f"Gemini file upload successful: {uploaded_file.name}")
             
             system_instruction = (
@@ -281,9 +277,9 @@ class AIService:
                 "Please transcribe this voice journal entry verbatim, and extract the date of the journal entry."
             )
             
-            print(f"[DEBUG] process_voice_journal: Sending request to Gemini (model: {self.model}) with response schema...", flush=True)
+            print(f"[DEBUG] process_voice_journal_async: Sending request to Gemini (model: {self.model}) with response schema...", flush=True)
             logger.info("Sending request to Gemini model for transcription and date extraction...")
-            interaction = self.client.interactions.create(
+            interaction = await self.client.aio.interactions.create(
                 model="gemini-3.5-flash",
                 input=[
                     {"type": "audio", "uri": uploaded_file.uri, "mime_type": uploaded_file.mime_type},
@@ -297,12 +293,12 @@ class AIService:
                 }
             )
             
-            print(f"[DEBUG] process_voice_journal: Gemini response received.", flush=True)
+            print(f"[DEBUG] process_voice_journal_async: Gemini response received.", flush=True)
             
             try:
-                print(f"[DEBUG] process_voice_journal: Deleting uploaded file {uploaded_file.name} from Gemini...", flush=True)
-                self.client.files.delete(name=uploaded_file.name)
-                print(f"[DEBUG] process_voice_journal: Successfully deleted file {uploaded_file.name} from Gemini.", flush=True)
+                print(f"[DEBUG] process_voice_journal_async: Deleting uploaded file {uploaded_file.name} from Gemini...", flush=True)
+                await self.client.aio.files.delete(name=uploaded_file.name)
+                print(f"[DEBUG] process_voice_journal_async: Successfully deleted file {uploaded_file.name} from Gemini.", flush=True)
             except Exception as delete_err:
                 print(f"[ERROR] Failed to delete uploaded file from Gemini: {delete_err}", flush=True)
                 logger.error(f"Failed to delete uploaded file from Gemini: {delete_err}")
@@ -314,29 +310,29 @@ class AIService:
                     raw_text = last_step.content[0].text
                     
             if raw_text:
-                print(f"[DEBUG] process_voice_journal: Raw response from Gemini: {raw_text}", flush=True)
+                print(f"[DEBUG] process_voice_journal_async: Raw response from Gemini: {raw_text}", flush=True)
                 logger.info("Raw response from Gemini extracted successfully.")
                 parsed_data = json.loads(raw_text)
-                print(f"[DEBUG] process_voice_journal: Successfully parsed JSON response from Gemini.", flush=True)
+                print(f"[DEBUG] process_voice_journal_async: Successfully parsed JSON response from Gemini.", flush=True)
                 return parsed_data
             else:
                 raise ValueError("No response text received from Gemini.")
                 
         except Exception as err:
-            print(f"[ERROR] process_voice_journal: Exception occurred during voice processing: {err}", flush=True)
-            logger.error("Exception during process_voice_journal", exc_info=True)
+            print(f"[ERROR] process_voice_journal_async: Exception occurred during voice processing: {err}", flush=True)
+            logger.error("Exception during process_voice_journal_async", exc_info=True)
             raise err
         finally:
             if os.path.exists(temp_path):
                 try:
                     os.remove(temp_path)
-                    print(f"[DEBUG] process_voice_journal: Cleaned up temporary file: {temp_path}", flush=True)
+                    print(f"[DEBUG] process_voice_journal_async: Cleaned up temporary file: {temp_path}", flush=True)
                 except Exception as rm_err:
-                    print(f"[ERROR] process_voice_journal: Failed to delete local temp file: {rm_err}", flush=True)
+                    print(f"[ERROR] process_voice_journal_async: Failed to delete local temp file: {rm_err}", flush=True)
 
-    def transcribe_audio(self, audio_bytes: bytes, filename: str) -> str:
+    async def transcribe_audio_async(self, audio_bytes: bytes, filename: str) -> str:
         """
-        Uploads audio to Gemini, transcribes it verbatim, and returns raw text.
+        Uploads audio to Gemini, transcribes it verbatim, and returns raw text asynchronously.
         """
         import os
         import tempfile
@@ -351,7 +347,7 @@ class AIService:
             with open(temp_path, "wb") as f:
                 f.write(audio_bytes)
                 
-            uploaded_file = self.client.files.upload(
+            uploaded_file = await self.client.aio.files.upload(
                 file=temp_path,
                 config=types.UploadFileConfig(
                     mime_type="audio/ogg"
@@ -363,7 +359,7 @@ class AIService:
                 "Do not add any explanations, greetings, or formatting. Only return the exact transcribed text."
             )
             
-            interaction = self.client.interactions.create(
+            interaction = await self.client.aio.interactions.create(
                 model="gemini-3.5-flash",
                 input=[
                     {"type": "audio", "uri": uploaded_file.uri, "mime_type": uploaded_file.mime_type},
@@ -373,7 +369,7 @@ class AIService:
             )
             
             try:
-                self.client.files.delete(name=uploaded_file.name)
+                await self.client.aio.files.delete(name=uploaded_file.name)
             except Exception as delete_err:
                 print(f"[ERROR] Failed to delete uploaded file from Gemini: {delete_err}")
                 

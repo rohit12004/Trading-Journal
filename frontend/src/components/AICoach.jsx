@@ -160,7 +160,7 @@ const AICoach = () => {
     if (existingJournal && lastLoadedDateRef.current !== selectedDate) {
       setJournalContent(existingJournal.content);
       lastLoadedDateRef.current = selectedDate;
-    } else if (!existingJournal && lastLoadedDateRef.current !== selectedDate) {
+    } else if (existingJournal === null && lastLoadedDateRef.current !== selectedDate) {
       setJournalContent("");
       lastLoadedDateRef.current = selectedDate;
     }

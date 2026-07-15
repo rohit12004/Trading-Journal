@@ -61,9 +61,9 @@ async def api_voice_log(
 
     try:
         audio_bytes = await file.read()
-        print(f"[DEBUG] Read {len(audio_bytes)} bytes from uploaded file. Invoking ai_service.process_voice_log...", flush=True)
-        parsed_result = ai_service.process_voice_log(audio_bytes, file.filename, client_date)
-        print(f"[DEBUG] ai_service.process_voice_log finished successfully.", flush=True)
+        print(f"[DEBUG] Read {len(audio_bytes)} bytes from uploaded file. Invoking ai_service.process_voice_log_async...", flush=True)
+        parsed_result = await ai_service.process_voice_log_async(audio_bytes, file.filename, client_date)
+        print(f"[DEBUG] ai_service.process_voice_log_async finished successfully.", flush=True)
         return parsed_result
     except Exception as e:
         print(f"[DEBUG] Error processing voice log in API router: {str(e)}", flush=True)
@@ -141,7 +141,7 @@ async def api_voice_transcribe(
 
     try:
         audio_bytes = await file.read()
-        transcript = ai_service.transcribe_audio(audio_bytes, file.filename)
+        transcript = await ai_service.transcribe_audio_async(audio_bytes, file.filename)
         return {"transcript": transcript}
     except Exception as e:
         logger.error(f"Error in api_voice_transcribe: {str(e)}", exc_info=True)
@@ -170,7 +170,7 @@ async def api_coach_voice_chat(
         
         # 1. Transcribe the audio first
         audio_bytes = await file.read()
-        transcript = ai_service.transcribe_audio(audio_bytes, file.filename)
+        transcript = await ai_service.transcribe_audio_async(audio_bytes, file.filename)
         
         if not transcript:
             raise HTTPException(
@@ -195,7 +195,7 @@ async def api_coach_voice_chat(
             f"=== TRADER KNOWLEDGE GRAPH DATA ===\n{graph_context}\n===================================="
         )
         
-        interaction = ai_service.client.interactions.create(
+        interaction = await ai_service.client.aio.interactions.create(
             model="gemini-3.5-flash",
             input=transcript,
             system_instruction=system_instruction

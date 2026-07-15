@@ -17,6 +17,7 @@ class Trade(Base):
     exit_price = Column(Numeric(18, 4), nullable=True)
     strike_price = Column(Numeric(18, 4), nullable=True)
     commission = Column(Numeric(18, 4), default=0.0)
+    brokerage = Column(Numeric(18, 4), default=0.0)
     pnl = Column(Numeric(18, 4), default=0.0)
     status = Column(String(20), nullable=False, default="PROFIT")  # PROFIT, LOSS
     asset_class = Column(String(20), nullable=False, default="STOCKS")  # STOCKS, OPTIONS, FUTURES

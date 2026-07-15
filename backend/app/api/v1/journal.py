@@ -97,13 +97,21 @@ def save_journal(
         db.commit()
         db.refresh(entry)
 
+    # Cache SQLAlchemy object properties before closing the session to prevent DetachedInstanceError
+    entry_id = entry.id
+    entry_content = entry.content
+    user_id = current_user.id
+
+    # Release the database connection back to the pool early
+    db.close()
+
     # Sync to Neo4j Graph Memory asynchronously/synchronously
     try:
         extracted_entities = graph_memory_service.add_journal_entry(
-            user_id=current_user.id,
-            journal_id=entry.id,
+            user_id=user_id,
+            journal_id=entry_id,
             date=payload.date,
-            content=payload.content
+            content=entry_content
         )
     except Exception as graph_err:
         logger.error(f"Failed to sync journal entry to Neo4j graph: {graph_err}", exc_info=True)
@@ -141,7 +149,7 @@ async def voice_journal(
 
     try:
         audio_bytes = await file.read()
-        parsed_result = ai_service.process_voice_journal(audio_bytes, file.filename, client_date)
+        parsed_result = await ai_service.process_voice_journal_async(audio_bytes, file.filename, client_date)
         return parsed_result
     except Exception as e:
         logger.error(f"Error processing voice journal: {e}", exc_info=True)

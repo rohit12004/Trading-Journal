@@ -138,8 +138,8 @@ const DashboardOverview = ({ trades = [] }) => {
         </div>
       </div>
 
-      {/* Metrics Cards Row (4 columns for Net P&L, Win Rate, Starting Capital, and Account Balance) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Metrics Cards Row (5 columns for Net P&L, Win Rate, Starting Capital, Total Brokerage, and Account Balance) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {/* Net P&L Card */}
         <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start">
@@ -179,6 +179,20 @@ const DashboardOverview = ({ trades = [] }) => {
               ₹{(metrics.total_capital || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <p className="text-[9px] text-slate-400 mt-1 font-semibold">Total net funding added</p>
+          </div>
+        </div>
+
+        {/* Total Brokerage Card */}
+        <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Brokerage</span>
+            <Wallet className="w-4 h-4 text-slate-400" />
+          </div>
+          <div>
+            <p className="text-2xl font-black font-mono text-amber-600 tracking-tight">
+              ₹{(metrics.total_brokerage || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p className="text-[9px] text-slate-400 mt-1 font-semibold">Total charges paid lifetime</p>
           </div>
         </div>
 

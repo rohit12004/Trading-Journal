@@ -67,12 +67,13 @@ class TradeService:
         exit_time = getattr(trade_in, "exit_time", None)
         strategy = getattr(trade_in, "strategy", None)
         timestamp = getattr(trade_in, "timestamp", None)
+        brokerage = getattr(trade_in, "brokerage", 0.0) or 0.0
         
         pnl = 0.0
         status_val = "OPEN"
         
         if exit_price is not None:
-            pnl = compute_trade_pnl(
+            gross_pnl = compute_trade_pnl(
                 asset_class=asset_upper,
                 direction=trade_in.direction,
                 symbol=trade_in.symbol,
@@ -80,6 +81,7 @@ class TradeService:
                 entry_price=entry_price,
                 exit_price=exit_price
             )
+            pnl = float(gross_pnl) - float(brokerage)
             status_val = "CLOSED"
 
         db_trade = Trade(
@@ -94,6 +96,7 @@ class TradeService:
             status=status_val,
             asset_class=asset_upper,
             pnl=pnl,
+            brokerage=brokerage,
             notes=trade_in.notes,
             entry_time=entry_time,
             exit_time=exit_time,
@@ -163,6 +166,7 @@ class TradeService:
                 total_capital -= amt
 
         current_balance = total_capital + float(net_pnl)
+        total_brokerage = sum(float(t.brokerage or 0.0) for t in all_trades)
             
         return {
             "net_pnl": float(net_pnl),
@@ -171,7 +175,8 @@ class TradeService:
             "total_trades": total_trades,
             "open_trades_count": open_trades_count,
             "total_capital": float(total_capital),
-            "current_balance": float(current_balance)
+            "current_balance": float(current_balance),
+            "total_brokerage": float(total_brokerage)
         }
 
     @staticmethod
@@ -200,7 +205,7 @@ class TradeService:
                     detail="Exit price is required to close a trade."
                 )
             trade.status = "CLOSED"
-            trade.pnl = compute_trade_pnl(
+            gross_pnl = compute_trade_pnl(
                 asset_class=trade.asset_class,
                 direction=trade.direction,
                 symbol=trade.symbol,
@@ -208,6 +213,7 @@ class TradeService:
                 entry_price=trade.entry_price,
                 exit_price=trade.exit_price
             )
+            trade.pnl = float(gross_pnl) - float(trade.brokerage or 0.0)
         else:
             trade.status = "OPEN"
             trade.pnl = 0.0

@@ -479,30 +479,35 @@ const TradeLogger = ({ tradeForm, setTradeForm, lotSizes, handleLogTradeSubmit }
                   required
                 />
               </div>
-              <div className="flex flex-col space-y-1">
-                <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Broker Commission</label>
-                <input
-                  type="number" step="any" min="0"
-                  value={tradeForm.commission}
-                  onChange={(e) => update({ commission: e.target.value })}
-                  placeholder="0.00"
-                  className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
-                />
-              </div>
             </div>
           </>
         )}
 
-        {/* Trade Date */}
-        <div className="flex flex-col space-y-1">
-          <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Trade Date *</label>
-          <input
-            type="date"
-            value={tradeForm.date || ""}
-            onChange={(e) => update({ date: e.target.value })}
-            className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
-            required
-          />
+        {/* Trade Date & Brokerage */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col space-y-1">
+            <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Trade Date *</label>
+            <input
+              type="date"
+              value={tradeForm.date || ""}
+              onChange={(e) => update({ date: e.target.value })}
+              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
+              required
+            />
+          </div>
+          <div className="flex flex-col space-y-1">
+            <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Brokerage (₹) *</label>
+            <input
+              type="number"
+              step="any"
+              min="0"
+              value={tradeForm.brokerage}
+              onChange={(e) => update({ brokerage: e.target.value })}
+              placeholder="50.05"
+              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
+              required
+            />
+          </div>
         </div>
 
         {/* Entry Time & Exit Time */}

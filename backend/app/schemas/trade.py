@@ -14,6 +14,7 @@ class StockTradeCreate(BaseModel):
     strategy: Optional[str] = Field(None, max_length=100)
     timestamp: Optional[datetime] = Field(None, description="Trade execution date")
     asset_class: Literal["STOCKS"] = "STOCKS"
+    brokerage: Optional[float] = Field(0.0, ge=0)
 
 class OptionTradeCreate(BaseModel):
     symbol: str = Field(..., min_length=1, max_length=50)
@@ -28,6 +29,7 @@ class OptionTradeCreate(BaseModel):
     strategy: Optional[str] = Field(None, max_length=100)
     timestamp: Optional[datetime] = Field(None, description="Trade execution date")
     asset_class: Literal["OPTIONS"] = "OPTIONS"
+    brokerage: Optional[float] = Field(0.0, ge=0)
 
 class FutureTradeCreate(BaseModel):
     symbol: str = Field(..., min_length=1, max_length=50)
@@ -41,6 +43,7 @@ class FutureTradeCreate(BaseModel):
     strategy: Optional[str] = Field(None, max_length=100)
     timestamp: Optional[datetime] = Field(None, description="Trade execution date")
     asset_class: Literal["FUTURES"] = "FUTURES"
+    brokerage: Optional[float] = Field(0.0, ge=0)
 
 # Discriminated Union for FastAPI request body validation
 TradeCreate = Annotated[
@@ -63,6 +66,7 @@ class TradeUpdate(BaseModel):
     exit_time: Optional[str] = None
     strategy: Optional[str] = None
     timestamp: Optional[datetime] = None
+    brokerage: Optional[float] = Field(None, ge=0)
 
 class TradeResponse(BaseModel):
     id: str
@@ -80,6 +84,7 @@ class TradeResponse(BaseModel):
     entry_time: Optional[str] = None
     exit_time: Optional[str] = None
     strategy: Optional[str] = None
+    brokerage: float = 0.0
     timestamp: datetime
     created_at: datetime
 
@@ -94,3 +99,4 @@ class TradeMetricsResponse(BaseModel):
     open_trades_count: int
     total_capital: float
     current_balance: float
+    total_brokerage: float

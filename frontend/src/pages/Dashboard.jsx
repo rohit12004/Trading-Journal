@@ -34,6 +34,7 @@ const DEFAULT_TRADE_FORM = {
   strikePrice: "",
   pnlAmount: "",
   commission: "",
+  brokerage: "50",
   date: new Date().toISOString().split("T")[0],
   entryTime: "",
   exitTime: "",
@@ -156,7 +157,7 @@ const Dashboard = () => {
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleLogTradeSubmit = async (e) => {
     e.preventDefault();
-    const { symbol, quantity, direction, assetClass, entryPrice, exitPrice, strikePrice, date, entryTime, exitTime, strategy, notes } = tradeForm;
+    const { symbol, quantity, direction, assetClass, entryPrice, exitPrice, strikePrice, date, entryTime, exitTime, strategy, notes, brokerage } = tradeForm;
 
     if (!symbol || !quantity) {
       toast.error("Please fill in all required trade fields.");
@@ -195,6 +196,7 @@ const Dashboard = () => {
         notes:       notes      || null,
         entry_price: parseFloat(entryPrice),
         exit_price:  parseFloat(exitPrice),
+        brokerage:   brokerage ? parseFloat(brokerage) : 0.0,
         timestamp:   date ? `${date}T${entryTime || "00:00"}:00` : null,
       };
       if (assetClass === "OPTIONS") {

@@ -58,7 +58,8 @@ const TodayTradesTable = ({ todayTrades, todayPnl, handleDeleteTrade }) => {
                     {t.quantity} {t.asset_class === "STOCKS" ? "sh" : "lots"}
                   </td>
                   <td className={`py-2.5 text-right font-bold ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                    {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
+                    <div>{t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}</div>
+                    <div className="text-[9px] text-slate-400 font-sans font-normal">Brokerage: ₹{parseFloat(t.brokerage || 0).toFixed(2)}</div>
                   </td>
                   <td className="py-2.5 text-right">
                     <button

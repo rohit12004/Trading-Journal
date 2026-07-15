@@ -42,8 +42,9 @@ const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       <div className={`font-bold text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
         {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
       </div>
-      <div className="text-[10px] text-slate-400 font-sans">
-        {t.pnl >= 0 ? "PROFIT" : "LOSS"}
+      <div className="text-[10px] text-slate-400 font-sans flex flex-col">
+        <span>{t.pnl >= 0 ? "PROFIT" : "LOSS"}</span>
+        <span className="text-[9px] text-slate-400">Brokerage: ₹{parseFloat(t.brokerage || 0).toFixed(2)}</span>
       </div>
     </td>
 
@@ -116,8 +117,9 @@ const OptionsRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       <div className={`font-bold text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
         {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
       </div>
-      <div className="text-[10px] text-slate-400 font-sans">
-        {t.pnl >= 0 ? "PROFIT" : "LOSS"}
+      <div className="text-[10px] text-slate-400 font-sans flex flex-col">
+        <span>{t.pnl >= 0 ? "PROFIT" : "LOSS"}</span>
+        <span className="text-[9px] text-slate-400">Brokerage: ₹{parseFloat(t.brokerage || 0).toFixed(2)}</span>
       </div>
     </td>
 
@@ -192,8 +194,9 @@ const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       <div className={`font-bold text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
         {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
       </div>
-      <div className="text-[10px] text-slate-400 font-sans">
-        {t.pnl >= 0 ? "PROFIT" : "LOSS"}
+      <div className="text-[10px] text-slate-400 font-sans flex flex-col">
+        <span>{t.pnl >= 0 ? "PROFIT" : "LOSS"}</span>
+        <span className="text-[9px] text-slate-400">Brokerage: ₹{parseFloat(t.brokerage || 0).toFixed(2)}</span>
       </div>
     </td>
 
@@ -278,6 +281,7 @@ const TradeHistory = ({
 }) => {
   const [editingTrade, setEditingTrade] = useState(null);
   const periodPresets = [
+    { key: "ALL", label: "All History" },
     { key: "TODAY", label: "Today" },
     { key: "MONTH", label: "This Month" },
     { key: "CUSTOM_DATE", label: "Custom Date" },
@@ -437,6 +441,7 @@ const EditTradeModal = ({ trade, onClose }) => {
   const [notes, setNotes] = useState(trade.notes || "");
   const [entryTime, setEntryTime] = useState(trade.entry_time || "");
   const [exitTime, setExitTime] = useState(trade.exit_time || "");
+  const [brokerage, setBrokerage] = useState(trade.brokerage !== undefined ? String(trade.brokerage) : "0");
   const updateTradeMutation = useUpdateTradeMutation();
 
   const handleSubmit = async (e) => {
@@ -454,6 +459,7 @@ const EditTradeModal = ({ trade, onClose }) => {
           notes: notes || null,
           entry_time: entryTime || null,
           exit_time: exitTime || null,
+          brokerage: brokerage ? parseFloat(brokerage) : 0.0,
         },
       });
       toast.success("Trade details updated successfully!");
@@ -482,15 +488,29 @@ const EditTradeModal = ({ trade, onClose }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col space-y-1">
-            <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Symbol / Scrip</label>
-            <input
-              type="text"
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value)}
-              placeholder="e.g. NIFTY50"
-              className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none font-semibold font-mono"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Symbol / Scrip</label>
+              <input
+                type="text"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value)}
+                placeholder="e.g. NIFTY50"
+                className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none font-semibold font-mono"
+              />
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Brokerage Paid (₹)</label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                value={brokerage}
+                onChange={(e) => setBrokerage(e.target.value)}
+                placeholder="0.00"
+                className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none font-semibold font-mono"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
