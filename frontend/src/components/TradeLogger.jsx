@@ -126,14 +126,6 @@ const TradeLogger = ({ tradeForm, setTradeForm, lotSizes, handleLogTradeSubmit }
             updatedFields.exitPrice = String(data.exit_price);
           }
           
-          if (data.entry_time) {
-            updatedFields.entryTime = data.entry_time;
-          }
-          
-          if (data.exit_time) {
-            updatedFields.exitTime = data.exit_time;
-          }
-          
           if (data.strategy) {
             updatedFields.strategy = data.strategy;
           }
@@ -506,28 +498,6 @@ const TradeLogger = ({ tradeForm, setTradeForm, lotSizes, handleLogTradeSubmit }
               placeholder="50.05"
               className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
               required
-            />
-          </div>
-        </div>
-
-        {/* Entry Time & Exit Time */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col space-y-1">
-            <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Entry Time</label>
-            <input
-              type="time"
-              value={tradeForm.entryTime}
-              onChange={(e) => update({ entryTime: e.target.value })}
-              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
-            />
-          </div>
-          <div className="flex flex-col space-y-1">
-            <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Exit Time</label>
-            <input
-              type="time"
-              value={tradeForm.exitTime}
-              onChange={(e) => update({ exitTime: e.target.value })}
-              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-black outline-none shadow-sm"
             />
           </div>
         </div>

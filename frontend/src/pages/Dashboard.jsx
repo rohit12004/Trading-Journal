@@ -21,6 +21,7 @@ import TradeHistory from "../components/TradeHistory";
 import ProfileSettings from "../components/ProfileSettings";
 import TradingCalendar from "../components/TradingCalendar";
 import AICoach from "../components/AICoach";
+import DailyNotes from "../components/DailyNotes";
 
 // ─── Initial form state ───────────────────────────────────────────────────────
 const DEFAULT_TRADE_FORM = {
@@ -36,8 +37,6 @@ const DEFAULT_TRADE_FORM = {
   commission: "",
   brokerage: "50",
   date: new Date().toISOString().split("T")[0],
-  entryTime: "",
-  exitTime: "",
   strategy: "",
   notes: "",
 };
@@ -60,32 +59,32 @@ const Dashboard = () => {
   const [tradeMode, setTradeMode] = useState("MANUAL"); // MANUAL or IMPORT
 
   // History filters
-  const [historyPeriod, setHistoryPeriod]         = useState("TODAY");
+  const [historyPeriod, setHistoryPeriod] = useState("TODAY");
   const [historyAssetClass, setHistoryAssetClass] = useState("ALL");
-  const [customDate, setCustomDate]               = useState(new Date().toISOString().split("T")[0]);
-  const [customMonth, setCustomMonth]             = useState(new Date().toISOString().slice(0, 7));
+  const [customDate, setCustomDate] = useState(new Date().toISOString().split("T")[0]);
+  const [customMonth, setCustomMonth] = useState(new Date().toISOString().slice(0, 7));
 
   // Trade log form
   const [tradeForm, setTradeForm] = useState(DEFAULT_TRADE_FORM);
 
   // Position closing
-  const [closingTradeId, setClosingTradeId]   = useState(null);
-  const [exitPriceInput, setExitPriceInput]   = useState("");
+  const [closingTradeId, setClosingTradeId] = useState(null);
+  const [exitPriceInput, setExitPriceInput] = useState("");
 
   // Cookie test panel
-  const [cookieStatus, setCookieStatus]   = useState("");
+  const [cookieStatus, setCookieStatus] = useState("");
   const [cookieLoading, setCookieLoading] = useState(false);
 
   // Profile form
   const [profileForm, setProfileForm] = useState({
-    firstName:    user?.first_name    || "",
-    middleName:   user?.middle_name   || "",
-    lastName:     user?.last_name     || "",
+    firstName: user?.first_name || "",
+    middleName: user?.middle_name || "",
+    lastName: user?.last_name || "",
     addressLine1: user?.address_line1 || "",
-    city:         user?.city          || "",
-    state:        user?.state         || "",
-    country:      user?.country       || "",
-    postal_code:  user?.postal_code   || "",
+    city: user?.city || "",
+    state: user?.state || "",
+    country: user?.country || "",
+    postal_code: user?.postal_code || "",
   });
   const [profileLoading, setProfileLoading] = useState(false);
 
@@ -93,14 +92,14 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       setProfileForm({
-        firstName:    user.first_name    || "",
-        middleName:   user.middle_name   || "",
-        lastName:     user.last_name     || "",
+        firstName: user.first_name || "",
+        middleName: user.middle_name || "",
+        lastName: user.last_name || "",
         addressLine1: user.address_line1 || "",
-        city:         user.city          || "",
-        state:        user.state         || "",
-        country:      user.country       || "",
-        postal_code:  user.postal_code   || "",
+        city: user.city || "",
+        state: user.state || "",
+        country: user.country || "",
+        postal_code: user.postal_code || "",
       });
     }
   }, [user]);
@@ -109,7 +108,7 @@ const Dashboard = () => {
   const getFullName = () => {
     if (!user) return "Trader Profile";
     const middle = user.middle_name ? ` ${user.middle_name}` : "";
-    const last   = user.last_name   ? ` ${user.last_name}`   : "";
+    const last = user.last_name ? ` ${user.last_name}` : "";
     return `${user.first_name}${middle}${last}`;
   };
 
@@ -124,16 +123,16 @@ const Dashboard = () => {
   };
 
   // ── Derived data ──────────────────────────────────────────────────────────
-  const todayStr    = new Date().toISOString().split("T")[0];
+  const todayStr = new Date().toISOString().split("T")[0];
   const todayTrades = trades.filter((t) => getTradeLocalDateStr(t) === todayStr);
-  const todayPnl    = todayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+  const todayPnl = todayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
 
   const getFilteredTrades = () =>
     trades.filter((t) => {
       const tradeDate = getTradeLocalDateStr(t);
-      if (historyPeriod === "TODAY"        && tradeDate !== todayStr)          return false;
-      if (historyPeriod === "MONTH"        && !tradeDate.startsWith(new Date().toISOString().slice(0, 7))) return false;
-      if (historyPeriod === "CUSTOM_DATE"  && tradeDate !== customDate)        return false;
+      if (historyPeriod === "TODAY" && tradeDate !== todayStr) return false;
+      if (historyPeriod === "MONTH" && !tradeDate.startsWith(new Date().toISOString().slice(0, 7))) return false;
+      if (historyPeriod === "CUSTOM_DATE" && tradeDate !== customDate) return false;
       if (historyPeriod === "CUSTOM_MONTH" && !tradeDate.startsWith(customMonth)) return false;
       if (historyAssetClass !== "ALL") {
         const asset = t.asset_class?.toUpperCase() || "STOCKS";
@@ -157,7 +156,7 @@ const Dashboard = () => {
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleLogTradeSubmit = async (e) => {
     e.preventDefault();
-    const { symbol, quantity, direction, assetClass, entryPrice, exitPrice, strikePrice, date, entryTime, exitTime, strategy, notes, brokerage } = tradeForm;
+    const { symbol, quantity, direction, assetClass, entryPrice, exitPrice, strikePrice, date, strategy, notes, brokerage } = tradeForm;
 
     if (!symbol || !quantity) {
       toast.error("Please fill in all required trade fields.");
@@ -186,18 +185,16 @@ const Dashboard = () => {
 
     try {
       const payload = {
-        symbol:      symbol.toUpperCase(),
+        symbol: symbol.toUpperCase(),
         direction,
-        quantity:    parseFloat(quantity),
+        quantity: parseFloat(quantity),
         asset_class: assetClass,
-        entry_time:  entryTime  || null,
-        exit_time:   exitTime   || null,
-        strategy:    strategy   || null,
-        notes:       notes      || null,
+        strategy: strategy || null,
+        notes: notes || null,
         entry_price: parseFloat(entryPrice),
-        exit_price:  parseFloat(exitPrice),
-        brokerage:   brokerage ? parseFloat(brokerage) : 0.0,
-        timestamp:   date ? `${date}T${entryTime || "00:00"}:00` : null,
+        exit_price: parseFloat(exitPrice),
+        brokerage: brokerage ? parseFloat(brokerage) : 0.0,
+        timestamp: date ? `${date}T00:00:00` : null,
       };
       if (assetClass === "OPTIONS") {
         payload.strike_price = strikePrice ? parseFloat(strikePrice) : null;
@@ -208,7 +205,7 @@ const Dashboard = () => {
 
       setTradeForm({
         ...DEFAULT_TRADE_FORM,
-        direction:  assetClass === "OPTIONS" ? "CALL" : "BUY",
+        direction: assetClass === "OPTIONS" ? "CALL" : "BUY",
         assetClass,
       });
       return true;
@@ -256,14 +253,14 @@ const Dashboard = () => {
     setProfileLoading(true);
     try {
       await updateProfile({
-        first_name:   profileForm.firstName,
-        middle_name:  profileForm.middleName  || null,
-        last_name:    profileForm.lastName    || null,
+        first_name: profileForm.firstName,
+        middle_name: profileForm.middleName || null,
+        last_name: profileForm.lastName || null,
         address_line1: profileForm.addressLine1 || null,
-        city:         profileForm.city        || null,
-        state:        profileForm.state       || null,
-        country:      profileForm.country     || null,
-        postal_code:  profileForm.postal_code || null,
+        city: profileForm.city || null,
+        state: profileForm.state || null,
+        country: profileForm.country || null,
+        postal_code: profileForm.postal_code || null,
       });
       toast.success("Profile and billing address updated successfully!");
     } catch (err) {
@@ -325,22 +322,20 @@ const Dashboard = () => {
                 <button
                   type="button"
                   onClick={() => setTradeMode("MANUAL")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    tradeMode === "MANUAL"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${tradeMode === "MANUAL"
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-800"
-                  }`}
+                    }`}
                 >
                   Manual Entry
                 </button>
                 <button
                   type="button"
                   onClick={() => setTradeMode("IMPORT")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    tradeMode === "IMPORT"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${tradeMode === "IMPORT"
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-800"
-                  }`}
+                    }`}
                 >
                   Import Report
                 </button>
@@ -399,6 +394,11 @@ const Dashboard = () => {
           <div className="flex-1 overflow-hidden p-6 md:p-8 flex flex-col">
             <AICoach />
           </div>
+        )}
+
+        {/* Tab G — Daily Notes */}
+        {activeTab === "DailyNotes" && (
+          <DailyNotes />
         )}
 
         {/* Tab D — Profile & Settings */}

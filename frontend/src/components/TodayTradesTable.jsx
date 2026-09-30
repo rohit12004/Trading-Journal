@@ -39,11 +39,6 @@ const TodayTradesTable = ({ todayTrades, todayPnl, handleDeleteTrade }) => {
                   </td>
                   <td className="py-2.5 font-bold text-slate-800">
                     <div>{t.symbol}</div>
-                    {t.entry_time && (
-                      <div className="text-[10px] text-slate-400 font-normal font-sans">
-                        {t.entry_time}{t.exit_time ? ` - ${t.exit_time}` : ""}
-                      </div>
-                    )}
                   </td>
                   <td className="py-2.5">
                     <span className={`px-1.5 py-0.5 rounded text-[14px] font-bold ${

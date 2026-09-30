@@ -11,6 +11,7 @@ const weekdayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "
 const TradingCalendar = ({ trades = [], onDayClick }) => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [calPnlMode, setCalPnlMode] = useState("NET"); // "NET" or "TOTAL"
 
   // Navigation handlers
   const handlePrevMonth = () => {
@@ -35,10 +36,6 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
   const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
   const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-  // Number of padding days for Monday start:
-  // If first day is Sun (0), we need 6 padding days.
-  // If first day is Mon (1), we need 0 padding days.
-  // If first day is Tue (2), we need 1 padding day.
   const paddingDaysCount = (firstDayIndex + 6) % 7;
   const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
   
@@ -111,8 +108,15 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
       const tradeDate = t.timestamp ? t.timestamp.split("T")[0] : t.created_at ? t.created_at.split("T")[0] : null;
       return tradeDate && tradeDate.startsWith(monthStr);
     });
-    const monthlyPnl = monthlyTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
-    return { monthlyPnl, tradesCount: monthlyTrades.length };
+    const monthlyNetPnl = monthlyTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const monthlyCharges = monthlyTrades.reduce((sum, t) => sum + (t.brokerage || 0), 0);
+    const monthlyGrossPnl = monthlyNetPnl + monthlyCharges;
+    return {
+      monthlyPnl: calPnlMode === "NET" ? monthlyNetPnl : monthlyGrossPnl,
+      monthlyNetPnl,
+      monthlyGrossPnl,
+      tradesCount: monthlyTrades.length
+    };
   };
 
   const { monthlyPnl } = getMonthlyStats();
@@ -120,32 +124,55 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
   return (
     <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 light-scroll animate-fade-in">
       
-      {/* Top Header & Year Selector Bar */}
+      {/* Top Header & Controls Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-slate-200">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
             <CalendarIcon className="w-6 h-6 text-slate-700" />
             Trading Calendar
           </h1>
-          <p className="text-slate-500 text-xs">View your trading activity daily. Hover for exact P/L and click to view trades.</p>
+          <p className="text-slate-500 text-xs">View your trading activity daily. Hover for exact Net/Gross P&amp;L breakdown and click to view trades.</p>
         </div>
-        <div className="flex items-center gap-2 self-start sm:self-center">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Year:</span>
-          <select
-            value={currentYear}
-            onChange={(e) => setCurrentYear(parseInt(e.target.value))}
-            className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-xl px-3.5 py-1.5 text-xs font-bold text-slate-750 outline-none shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
-          >
-            {Array.from({ length: new Date().getFullYear() - 2020 + 3 }, (_, i) => 2020 + i).map((yr) => (
-              <option key={yr} value={yr}>
-                {yr}
-              </option>
-            ))}
-          </select>
+        
+        <div className="flex items-center gap-3 self-start sm:self-center">
+          {/* Calendar P&L Mode Toggle */}
+          <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner">
+            <button
+              onClick={() => setCalPnlMode("NET")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                calPnlMode === "NET" ? "bg-black text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              Net P&amp;L
+            </button>
+            <button
+              onClick={() => setCalPnlMode("TOTAL")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                calPnlMode === "TOTAL" ? "bg-black text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              Total (Gross) P&amp;L
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Year:</span>
+            <select
+              value={currentYear}
+              onChange={(e) => setCurrentYear(parseInt(e.target.value))}
+              className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-750 outline-none shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              {Array.from({ length: new Date().getFullYear() - 2020 + 3 }, (_, i) => 2020 + i).map((yr) => (
+                <option key={yr} value={yr}>
+                  {yr}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Calendar Card Panel (Scrollable on small viewports) */}
+      {/* Calendar Card Panel */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm max-w-5xl mx-auto overflow-x-auto">
         <div className="min-w-[800px] md:min-w-[900px]">
           
@@ -171,7 +198,9 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
               </div>
             </div>
             <div className="text-right flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly P&L:</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Monthly {calPnlMode === "NET" ? "Net" : "Gross"} P&amp;L:
+              </span>
               <span className={`text-sm font-black font-mono px-3 py-1 rounded-xl shadow-sm ${
                 monthlyPnl >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
               }`}>
@@ -208,7 +237,9 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                 });
               });
 
-              const weeklyPnl = weeklyTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+              const weeklyNetPnl = weeklyTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+              const weeklyCharges = weeklyTrades.reduce((sum, t) => sum + (t.brokerage || 0), 0);
+              const weeklyPnl = calPnlMode === "NET" ? weeklyNetPnl : (weeklyNetPnl + weeklyCharges);
               const weeklyTradesCount = weeklyTrades.length;
 
               return (
@@ -225,9 +256,13 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                     });
 
                     const hasTrades = dayTrades.length > 0;
-                    const netPnl = dayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
-                    const isProfit = netPnl > 0;
-                    const isLoss = netPnl < 0;
+                    const dayNetPnl = dayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+                    const dayCharges = dayTrades.reduce((sum, t) => sum + (t.brokerage || 0), 0);
+                    const dayGrossPnl = dayNetPnl + dayCharges;
+                    const displayDayPnl = calPnlMode === "NET" ? dayNetPnl : dayGrossPnl;
+
+                    const isProfit = displayDayPnl > 0;
+                    const isLoss = displayDayPnl < 0;
 
                     let cellCls = "";
                     if (hasTrades) {
@@ -279,7 +314,7 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                           <span className={`text-xs md:text-sm font-black tracking-tight font-sans ${
                             hasTrades ? "text-white" : "text-slate-350"
                           }`}>
-                            {formatLargePnl(netPnl)}
+                            {formatLargePnl(displayDayPnl)}
                           </span>
                         </div>
 
@@ -302,9 +337,21 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                                 <span className="font-bold text-slate-200">{dayTrades.length}</span>
                               </div>
                               <div className="flex justify-between gap-6">
-                                <span className="text-slate-400">Net P&L:</span>
-                                <span className={`font-black font-mono ${netPnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                                  {netPnl >= 0 ? "+" : ""}₹{netPnl.toFixed(2)}
+                                <span className="text-slate-400">Gross P&amp;L:</span>
+                                <span className={`font-semibold font-mono ${dayGrossPnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                                  {dayGrossPnl >= 0 ? "+" : ""}₹{dayGrossPnl.toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-6">
+                                <span className="text-slate-400">Charges / Brokerage:</span>
+                                <span className="font-semibold font-mono text-amber-400">
+                                  ₹{dayCharges.toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-6 pt-1 border-t border-slate-800">
+                                <span className="text-slate-300 font-bold">Net P&amp;L:</span>
+                                <span className={`font-black font-mono ${dayNetPnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                                  {dayNetPnl >= 0 ? "+" : ""}₹{dayNetPnl.toFixed(2)}
                                 </span>
                               </div>
                             </div>

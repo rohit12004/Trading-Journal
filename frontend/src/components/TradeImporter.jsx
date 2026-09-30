@@ -225,7 +225,7 @@ const TradeImporter = () => {
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h3 className="text-base font-black text-slate-900 tracking-tight">Confirm Broker Import</h3>
-                <p className="text-slate-500 text-xs">Review parsed trades from your statement. Deselect any entries to skip them.</p>
+                <p className="text-slate-500 text-xs">Review parsed trades from your statement. Charges are split equally across all imported trades.</p>
               </div>
               <button
                 onClick={() => setPreviewTrades(null)}
@@ -234,6 +234,22 @@ const TradeImporter = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Total Charges Summary Banner */}
+            {previewTrades && previewTrades.some(t => (t.brokerage || 0) > 0) && (
+              <div className="mx-6 mt-4 p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>
+                    <strong className="font-bold">Total Statement Charges:</strong> ₹
+                    {previewTrades.reduce((sum, t) => sum + (t.brokerage || 0), 0).toFixed(2)}
+                  </span>
+                </div>
+                <span className="bg-amber-100/80 text-amber-800 font-mono font-bold text-[10px] px-2 py-0.5 rounded-md">
+                  Split: ₹{(previewTrades[0]?.brokerage || 0).toFixed(2)} per trade
+                </span>
+              </div>
+            )}
 
             {/* Modal Body (Trade Table) */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -259,6 +275,7 @@ const TradeImporter = () => {
                       <th className="py-3 px-4 text-right">Lots</th>
                       <th className="py-3 px-4 text-right">Buy Avg</th>
                       <th className="py-3 px-4 text-right">Sell Avg</th>
+                      <th className="py-3 px-4 text-right">Brokerage</th>
                       <th className="py-3 px-4 text-right">Net P&amp;L</th>
                     </tr>
                   </thead>
@@ -300,6 +317,7 @@ const TradeImporter = () => {
                           <td className="py-2.5 px-4 text-right font-semibold font-mono">{t.quantity.toFixed(2)}</td>
                           <td className="py-2.5 px-4 text-right font-mono text-slate-600">₹{t.entry_price.toFixed(2)}</td>
                           <td className="py-2.5 px-4 text-right font-mono text-slate-600">₹{t.exit_price.toFixed(2)}</td>
+                          <td className="py-2.5 px-4 text-right font-mono text-amber-600 font-semibold">₹{(t.brokerage || 0).toFixed(2)}</td>
                           <td className={`py-2.5 px-4 text-right font-bold font-mono ${isProfit ? "text-emerald-600" : "text-rose-500"
                             }`}>
                             {isProfit ? "+" : ""}₹{t.pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

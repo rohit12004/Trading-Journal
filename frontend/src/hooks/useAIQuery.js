@@ -21,10 +21,10 @@ export const useVoiceLogMutation = () => {
     mutationFn: async (audioBlob) => {
       const formData = new FormData();
       formData.append("file", audioBlob, "voice-log.webm");
-      
+
       const clientDate = new Date().toLocaleDateString("sv-SE");
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      
+
       const { data } = await client.post(`/ai/voice-log?client_date=${clientDate}&timezone=${timezone}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -81,9 +81,9 @@ export const useVoiceJournalMutation = () => {
     mutationFn: async (audioBlob) => {
       const formData = new FormData();
       formData.append("file", audioBlob, "voice-journal.webm");
-      
+
       const clientDate = new Date().toLocaleDateString("sv-SE");
-      
+
       const { data } = await client.post(`/journal/voice?client_date=${clientDate}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -102,7 +102,7 @@ export const useVoiceTranscribeMutation = () => {
     mutationFn: async (audioBlob) => {
       const formData = new FormData();
       formData.append("file", audioBlob, "chat-voice.webm");
-      
+
       const { data } = await client.post("/ai/voice-transcribe", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -121,7 +121,7 @@ export const useVoiceCoachChatMutation = () => {
     mutationFn: async (audioBlob) => {
       const formData = new FormData();
       formData.append("file", audioBlob, "coach-voice-chat.webm");
-      
+
       const { data } = await client.post("/ai/coach/voice-chat", formData, {
         headers: {
           "Content-Type": "multipart/form-data",

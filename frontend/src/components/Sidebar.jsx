@@ -8,6 +8,7 @@ import {
   Zap,
   History,
   Bot,
+  StickyNote,
 } from "lucide-react";
 
 const Logo = () => (
@@ -22,30 +23,31 @@ const Logo = () => (
 const Sidebar = ({ activeTab, setActiveTab, getFullName, logout }) => {
   const navItems = [
     { key: "Dashboard", label: "Dashboard", icon: <BarChart3 className="w-4 h-4 text-violet-600" /> },
-    { key: "Trades",    label: "Trades (Log)", icon: <Zap className="w-4 h-4 text-emerald-600" /> },
-    { key: "AICoach",   label: "AI Coach",     icon: <Bot className="w-4 h-4 text-violet-650" /> },
-    { key: "Calendar",  label: "Calendar",     icon: <CalendarIcon className="w-4 h-4 text-amber-600" /> },
-    { key: "History",   label: "History",      icon: <History className="w-4 h-4 text-indigo-600" /> },
+    { key: "Trades", label: "Trades (Log)", icon: <Zap className="w-4 h-4 text-emerald-600" /> },
+    { key: "AICoach", label: "AI Coach", icon: <Bot className="w-4 h-4 text-violet-650" /> },
+    { key: "Calendar", label: "Calendar", icon: <CalendarIcon className="w-4 h-4 text-amber-600" /> },
+    { key: "DailyNotes", label: "Daily Notes", icon: <StickyNote className="w-4 h-4 text-amber-500" /> },
+    { key: "History", label: "History", icon: <History className="w-4 h-4 text-indigo-600" /> },
   ];
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between h-full flex-shrink-0">
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-1 min-h-0 overflow-y-auto light-scroll">
         {/* Logo Brand Header */}
-        <div className="flex items-center gap-2.5 px-6 py-5 border-b border-slate-200 select-none">
+        <div className="flex items-center gap-2.5 px-6 py-5 border-b border-slate-200 select-none flex-shrink-0">
           <Logo />
           <span className="text-base font-extrabold tracking-tight text-slate-900">QuantCoach AI</span>
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex flex-col gap-1 p-4">
+        <nav className="flex flex-col gap-1 p-4 flex-shrink-0">
           {navItems.map(({ key, label, icon }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === key
-                  ? "bg-slate-100 text-slate-900"
+                  ? "bg-slate-100 text-slate-900 font-bold"
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
@@ -57,7 +59,7 @@ const Sidebar = ({ activeTab, setActiveTab, getFullName, logout }) => {
       </div>
 
       {/* Sidebar Bottom Profile Card */}
-      <div className="p-4 border-t border-slate-200">
+      <div className="p-4 border-t border-slate-200 flex-shrink-0">
         <div
           onClick={() => setActiveTab("Profile & Settings")}
           className={`w-full flex items-center justify-between p-2 rounded-xl transition-all cursor-pointer ${

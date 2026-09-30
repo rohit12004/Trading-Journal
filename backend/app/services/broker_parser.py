@@ -79,6 +79,82 @@ class BrokerParser:
         return datetime.utcnow()
 
     @staticmethod
+    def extract_total_charges(rows: List[Dict[str, str]]) -> float:
+        """
+        Scans rows for a 'Charges' section and calculates total charges.
+        Extracts from the final 'Total' row below 'Total GST' under 'Charges'.
+        If 'Total' row is missing, sums itemized charges (Exchange, SEBI, STT, Stamp Duty, IPFT, Brokerage, Total GST).
+        """
+        in_charges_block = False
+        explicit_sum = 0.0
+        found_explicit = False
+        grand_total_val = None
+
+        for row in rows:
+            row_vals = [str(v).strip() for v in row.values() if v and str(v).strip()]
+            if not row_vals:
+                continue
+
+            first_val_upper = row_vals[0].upper()
+
+            # Check if we enter the Charges block
+            if "CHARGES" in first_val_upper and len(row_vals) == 1:
+                in_charges_block = True
+                continue
+
+            # Check for the grand Total row at bottom of Charges block (e.g. "Total", "Total Charges")
+            # Note: "TOTAL GST" is NOT the grand total row!
+            is_grand_total_row = (
+                first_val_upper in ["TOTAL", "TOTAL CHARGES", "TOTAL (₹)", "TOTAL(₹)", "TOTAL AMOUNT"]
+                or (len(row_vals) > 1 and row_vals[1].upper() in ["TOTAL", "TOTAL CHARGES"])
+            ) and "GST" not in first_val_upper
+
+            if in_charges_block and is_grand_total_row:
+                for val in reversed(row_vals):
+                    try:
+                        clean_v = val.replace(",", "").replace("₹", "").strip()
+                        num = float(clean_v)
+                        if num > 0:
+                            grand_total_val = round(num, 2)
+                            break
+                    except ValueError:
+                        continue
+                if grand_total_val is not None:
+                    return grand_total_val
+
+            # Accumulate explicit charge line items (if grand total row isn't found)
+            known_keywords = [
+                "EXCHANGE TRANSACTION CHARGES", "SEBI TURNOVER", "STT", "STAMP DUTY",
+                "IPFT CHARGES", "BROKERAGE", "TOTAL GST", "CLEARING CHARGES"
+            ]
+
+            is_charge_line = any(
+                kw in val.upper()
+                for val in row_vals
+                for kw in known_keywords
+            )
+
+            if is_charge_line:
+                for val in reversed(row_vals):
+                    try:
+                        clean_v = val.replace(",", "").replace("₹", "").strip()
+                        num = float(clean_v)
+                        if num >= 0:
+                            explicit_sum += num
+                            found_explicit = True
+                            break
+                    except ValueError:
+                        continue
+
+        if grand_total_val is not None:
+            return grand_total_val
+
+        if found_explicit and explicit_sum > 0:
+            return round(explicit_sum, 2)
+
+        return 0.0
+
+    @staticmethod
     def parse_groww_fno(rows: List[Dict[str, str]]) -> List[Dict[str, Any]]:
         """
         Parse trades from Groww F&O report list of row dicts.
@@ -215,11 +291,29 @@ class BrokerParser:
                     "exit_price": sell_price,
                     "strike_price": strike_price,
                     "pnl": realized_pnl,
+                    "brokerage": 0.0,
                     "status": "CLOSED",
                     "asset_class": current_section,
                     "timestamp": entry_date.isoformat(),
                     "notes": f"Imported: {scrip_name}. Realized P&L: ₹{realized_pnl:.2f}",
                 })
+
+        # Calculate and distribute charges equally among trades (handling penny rounding remainders)
+        total_charges = BrokerParser.extract_total_charges(rows)
+        if total_charges > 0 and len(trades) > 0:
+            num_trades = len(trades)
+            base_brokerage = round(total_charges / num_trades, 2)
+            total_allocated = round(base_brokerage * num_trades, 2)
+            remainder = round(total_charges - total_allocated, 2)
+
+            for idx, t in enumerate(trades):
+                # Assign remainder (e.g. +0.01 or -0.01) to the last trade to guarantee 100% exact sum match
+                trade_brokerage = round(base_brokerage + (remainder if idx == num_trades - 1 else 0.0), 2)
+                t["brokerage"] = trade_brokerage
+                # Net P&L = Gross P&L - Brokerage
+                t["pnl"] = round(t["pnl"] - trade_brokerage, 2)
+                t["notes"] += f" (Charges split: ₹{trade_brokerage:.2f})"
+
         return trades
 
     @staticmethod
@@ -304,9 +398,28 @@ class BrokerParser:
                     "exit_price": sell_price,
                     "strike_price": None,
                     "pnl": realized_pnl,
+                    "brokerage": 0.0,
                     "status": "CLOSED",
                     "asset_class": "STOCKS",
                     "timestamp": entry_date.isoformat(),
-                    "notes": f"Imported: {stock_name}. Realised P&L: \u20b9{realized_pnl:.2f}",
+                    "notes": f"Imported: {stock_name}. Realised P&L: ₹{realized_pnl:.2f}",
                 })
+
+        # Calculate and distribute charges equally among trades (handling penny rounding remainders)
+        total_charges = BrokerParser.extract_total_charges(rows)
+        if total_charges > 0 and len(trades) > 0:
+            num_trades = len(trades)
+            base_brokerage = round(total_charges / num_trades, 2)
+            total_allocated = round(base_brokerage * num_trades, 2)
+            remainder = round(total_charges - total_allocated, 2)
+
+            for idx, t in enumerate(trades):
+                # Assign remainder to the last trade to guarantee 100% exact sum match
+                trade_brokerage = round(base_brokerage + (remainder if idx == num_trades - 1 else 0.0), 2)
+                t["brokerage"] = trade_brokerage
+                # Net P&L = Gross P&L - Brokerage
+                t["pnl"] = round(t["pnl"] - trade_brokerage, 2)
+                t["notes"] += f" (Charges split: ₹{trade_brokerage:.2f})"
+
         return trades
+

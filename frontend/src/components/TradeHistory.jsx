@@ -7,7 +7,7 @@ import { useUpdateTradeMutation } from "../hooks/useTradingQuery";
 const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
   <tr className="hover:bg-slate-50/50">
     {/* 1. Stock Name & Direction */}
-    <td className="py-3 w-[14%] text-left whitespace-nowrap">
+    <td className="py-3 w-[11%] text-left whitespace-nowrap">
       <div className="flex items-center gap-2">
         <span className="font-bold text-slate-800 text-sm">{t.symbol}</span>
         <span className={`inline-flex items-center justify-center w-11 py-0.5 rounded text-[10px] font-extrabold whitespace-nowrap ${t.direction === "BUY" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
@@ -17,13 +17,8 @@ const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       </div>
     </td>
 
-    {/* 2. Entry / Exit Time */}
-    <td className="py-3 w-[12%] text-left whitespace-nowrap text-xs text-slate-500 font-sans">
-      {t.entry_time ? `${t.entry_time} - ${t.exit_time || "—"}` : "—"}
-    </td>
-
-    {/* 3. Entry / Exit Price */}
-    <td className="py-3 w-[15%] text-left whitespace-nowrap text-xs text-slate-600">
+    {/* 2. Entry / Exit Price */}
+    <td className="py-3 w-[18%] text-left whitespace-nowrap text-xs text-slate-600">
       <div><span className="text-slate-400">In:</span> ₹{t.entry_price.toFixed(2)}</div>
       {t.exit_price ? (
         <div><span className="text-slate-400">Out:</span> ₹{t.exit_price.toFixed(2)}</div>
@@ -32,13 +27,13 @@ const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       )}
     </td>
 
-    {/* 4. Qty */}
+    {/* 3. Qty */}
     <td className="py-3 w-[7%] text-left whitespace-nowrap text-sm text-slate-600">
       {t.quantity} sh
     </td>
 
-    {/* 5. P&L */}
-    <td className="py-3 w-[10%] text-left whitespace-nowrap">
+    {/* 4. P&L */}
+    <td className="py-3 w-[12%] text-left whitespace-nowrap">
       <div className={`font-bold text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
         {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
       </div>
@@ -48,8 +43,8 @@ const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       </div>
     </td>
 
-    {/* 6. Strategy */}
-    <td className="py-3 pr-4 w-[17%] text-left">
+    {/* 5. Strategy */}
+    <td className="py-3 pr-4 w-[16%] text-left">
       {t.strategy ? (
         <span className="inline-block max-w-full bg-violet-100 text-violet-800 text-xs font-semibold px-2.5 py-0.5 rounded-md border border-violet-200 break-words whitespace-normal" title={t.strategy}>
           {t.strategy}
@@ -59,14 +54,14 @@ const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       )}
     </td>
 
-    {/* 7. Notes */}
-    <td className="py-3 w-[21%] text-left">
+    {/* 6. Notes */}
+    <td className="py-3 w-[32%] text-left">
       <span className="text-slate-700 font-medium text-sm break-words whitespace-normal block" title={t.notes}>
         {t.notes || "—"}
       </span>
     </td>
 
-    {/* 8. Action (Edit & Delete) */}
+    {/* 7. Action (Edit & Delete) */}
     <td className="py-3 text-right w-[4%] whitespace-nowrap">
       <div className="flex items-center justify-end gap-1.5">
         <button onClick={() => handleEditTrade(t)} className="text-slate-300 hover:text-violet-600 transition-colors">
@@ -84,7 +79,7 @@ const StocksRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
 const OptionsRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
   <tr className="hover:bg-slate-50/50">
     {/* 1. Option Name & Direction */}
-    <td className="py-3 w-[14%] text-left whitespace-nowrap">
+    <td className="py-3 w-[11%] text-left whitespace-nowrap">
       <div className="flex items-center gap-2">
         <span className="font-bold text-slate-800 text-sm">{t.symbol}</span>
         <span className={`inline-flex items-center justify-center w-11 py-0.5 rounded text-[10px] font-extrabold whitespace-nowrap ${t.direction === "CALL" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
@@ -94,26 +89,21 @@ const OptionsRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       </div>
     </td>
 
-    {/* 2. Entry / Exit Time */}
-    <td className="py-3 w-[12%] text-left whitespace-nowrap text-xs text-slate-500 font-sans">
-      {t.entry_time ? `${t.entry_time} - ${t.exit_time || "—"}` : "—"}
-    </td>
-
-    {/* 3. Price / Strike */}
-    <td className="py-3 w-[15%] text-left whitespace-nowrap text-xs text-slate-600">
+    {/* 2. Price / Strike */}
+    <td className="py-3 w-[18%] text-left whitespace-nowrap text-xs text-slate-600">
       <div><span className="text-slate-400">Prem:</span> ₹{t.entry_price.toFixed(2)} → {t.exit_price ? `₹${t.exit_price.toFixed(2)}` : "OPEN"}</div>
       {t.strike_price && (
         <div><span className="text-slate-400">Strike:</span> ₹{t.strike_price.toFixed(2)}</div>
       )}
     </td>
 
-    {/* 4. Lots */}
+    {/* 3. Lots */}
     <td className="py-3 w-[7%] text-left whitespace-nowrap text-sm text-slate-600">
       {t.quantity} lots
     </td>
 
-    {/* 5. P&L */}
-    <td className="py-3 w-[10%] text-left whitespace-nowrap">
+    {/* 4. P&L */}
+    <td className="py-3 w-[12%] text-left whitespace-nowrap">
       <div className={`font-bold text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
         {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
       </div>
@@ -123,8 +113,8 @@ const OptionsRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       </div>
     </td>
 
-    {/* 6. Strategy */}
-    <td className="py-3 pr-4 w-[17%] text-left">
+    {/* 5. Strategy */}
+    <td className="py-3 pr-4 w-[16%] text-left">
       {t.strategy ? (
         <span className="inline-block max-w-full bg-violet-100 text-violet-800 text-xs font-semibold px-2.5 py-0.5 rounded-md border border-violet-200 break-words whitespace-normal" title={t.strategy}>
           {t.strategy}
@@ -134,14 +124,14 @@ const OptionsRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       )}
     </td>
 
-    {/* 7. Notes */}
-    <td className="py-3 w-[21%] text-left">
+    {/* 6. Notes */}
+    <td className="py-3 w-[32%] text-left">
       <span className="text-slate-700 font-medium text-sm break-words whitespace-normal block" title={t.notes}>
         {t.notes || "—"}
       </span>
     </td>
 
-    {/* 8. Action (Edit & Delete) */}
+    {/* 7. Action (Edit & Delete) */}
     <td className="py-3 text-right w-[4%] whitespace-nowrap">
       <div className="flex items-center justify-end gap-1.5">
         <button onClick={() => handleEditTrade(t)} className="text-slate-300 hover:text-violet-600 transition-colors">
@@ -159,7 +149,7 @@ const OptionsRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
 const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
   <tr className="hover:bg-slate-50/50">
     {/* 1. Future Name & Direction */}
-    <td className="py-3 w-[14%] text-left whitespace-nowrap">
+    <td className="py-3 w-[11%] text-left whitespace-nowrap">
       <div className="flex items-center gap-2">
         <span className="font-bold text-slate-800 text-sm">{t.symbol}</span>
         <span className={`inline-flex items-center justify-center w-11 py-0.5 rounded text-[10px] font-extrabold whitespace-nowrap ${t.direction === "BUY" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
@@ -169,13 +159,8 @@ const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       </div>
     </td>
 
-    {/* 2. Entry / Exit Time */}
-    <td className="py-3 w-[12%] text-left whitespace-nowrap text-xs text-slate-500 font-sans">
-      {t.entry_time ? `${t.entry_time} - ${t.exit_time || "—"}` : "—"}
-    </td>
-
-    {/* 3. Entry / Exit Price */}
-    <td className="py-3 w-[15%] text-left whitespace-nowrap text-xs text-slate-600">
+    {/* 2. Entry / Exit Price */}
+    <td className="py-3 w-[18%] text-left whitespace-nowrap text-xs text-slate-600">
       <div><span className="text-slate-400">In:</span> ₹{t.entry_price.toFixed(2)}</div>
       {t.exit_price ? (
         <div><span className="text-slate-400">Out:</span> ₹{t.exit_price.toFixed(2)}</div>
@@ -184,13 +169,13 @@ const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       )}
     </td>
 
-    {/* 4. Lots */}
+    {/* 3. Lots */}
     <td className="py-3 w-[7%] text-left whitespace-nowrap text-sm text-slate-600">
       {t.quantity} lots
     </td>
 
-    {/* 5. P&L */}
-    <td className="py-3 w-[10%] text-left whitespace-nowrap">
+    {/* 4. P&L */}
+    <td className="py-3 w-[12%] text-left whitespace-nowrap">
       <div className={`font-bold text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
         {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
       </div>
@@ -200,8 +185,8 @@ const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       </div>
     </td>
 
-    {/* 6. Strategy */}
-    <td className="py-3 pr-4 w-[17%] text-left">
+    {/* 5. Strategy */}
+    <td className="py-3 pr-4 w-[16%] text-left">
       {t.strategy ? (
         <span className="inline-block max-w-full bg-violet-100 text-violet-800 text-xs font-semibold px-2.5 py-0.5 rounded-md border border-violet-200 break-words whitespace-normal" title={t.strategy}>
           {t.strategy}
@@ -211,14 +196,14 @@ const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
       )}
     </td>
 
-    {/* 7. Notes */}
-    <td className="py-3 w-[21%] text-left">
+    {/* 6. Notes */}
+    <td className="py-3 w-[32%] text-left">
       <span className="text-slate-700 font-medium text-sm break-words whitespace-normal block" title={t.notes}>
         {t.notes || "—"}
       </span>
     </td>
 
-    {/* 8. Action (Edit & Delete) */}
+    {/* 7. Action (Edit & Delete) */}
     <td className="py-3 text-right w-[4%] whitespace-nowrap">
       <div className="flex items-center justify-end gap-1.5">
         <button onClick={() => handleEditTrade(t)} className="text-slate-300 hover:text-violet-600 transition-colors">
@@ -240,18 +225,17 @@ const AssetSection = ({ icon, title, trades, RowComponent, handleDeleteTrade, ha
       {title} ({trades.length})
     </h4>
     <div className="overflow-x-auto">
-      <table className="w-full text-sm text-slate-700 table-fixed min-w-[850px]">
+      <table className="w-full text-sm text-slate-700 table-fixed min-w-[750px]">
         <thead>
           <tr className="border-b border-slate-200 text-slate-400 font-bold text-xs text-left">
-            <th className="py-2.5 w-[14%] font-semibold uppercase tracking-wider">
+            <th className="py-2.5 w-[11%] font-semibold uppercase tracking-wider">
               {title === "Stocks" ? "Stock Name" : title === "Options" ? "Option Name" : "Future Name"}
             </th>
-            <th className="py-2.5 w-[12%] font-semibold uppercase tracking-wider">Entry/Exit Time</th>
-            <th className="py-2.5 w-[15%] font-semibold uppercase tracking-wider">Entry/Exit Price</th>
+            <th className="py-2.5 w-[18%] font-semibold uppercase tracking-wider">Entry/Exit Price</th>
             <th className="py-2.5 w-[7%] font-semibold uppercase tracking-wider">Qty</th>
-            <th className="py-2.5 w-[10%] font-semibold uppercase tracking-wider">P/L</th>
-            <th className="py-2.5 pr-4 w-[17%] font-semibold uppercase tracking-wider">Strategy</th>
-            <th className="py-2.5 w-[21%] font-semibold uppercase tracking-wider">Notes</th>
+            <th className="py-2.5 w-[12%] font-semibold uppercase tracking-wider">P/L</th>
+            <th className="py-2.5 pr-4 w-[16%] font-semibold uppercase tracking-wider">Strategy</th>
+            <th className="py-2.5 w-[32%] font-semibold uppercase tracking-wider">Notes</th>
             <th className="py-2.5 w-[4%] text-right"></th>
           </tr>
         </thead>
@@ -439,8 +423,6 @@ const EditTradeModal = ({ trade, onClose }) => {
   const [symbol, setSymbol] = useState(trade.symbol || "");
   const [strategy, setStrategy] = useState(trade.strategy || "");
   const [notes, setNotes] = useState(trade.notes || "");
-  const [entryTime, setEntryTime] = useState(trade.entry_time || "");
-  const [exitTime, setExitTime] = useState(trade.exit_time || "");
   const [brokerage, setBrokerage] = useState(trade.brokerage !== undefined ? String(trade.brokerage) : "0");
   const updateTradeMutation = useUpdateTradeMutation();
 
@@ -457,8 +439,6 @@ const EditTradeModal = ({ trade, onClose }) => {
           symbol: symbol.trim().toUpperCase(),
           strategy: strategy || null,
           notes: notes || null,
-          entry_time: entryTime || null,
-          exit_time: exitTime || null,
           brokerage: brokerage ? parseFloat(brokerage) : 0.0,
         },
       });
@@ -476,7 +456,7 @@ const EditTradeModal = ({ trade, onClose }) => {
         <div className="flex justify-between items-center border-b border-slate-100 pb-3">
           <div>
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Edit Trade Details</h3>
-            <p className="text-slate-500 text-[10px] mt-0.5">Update parameters, times, strategy tags and review notes for this trade.</p>
+            <p className="text-slate-500 text-[10px] mt-0.5">Update parameters, strategy tags and review notes for this trade.</p>
           </div>
           <button
             type="button"
@@ -508,31 +488,6 @@ const EditTradeModal = ({ trade, onClose }) => {
                 value={brokerage}
                 onChange={(e) => setBrokerage(e.target.value)}
                 placeholder="0.00"
-                className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none font-semibold font-mono"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1">
-              <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Entry Time (HH:MM)</label>
-              <input
-                type="text"
-                placeholder="e.g. 09:15"
-                value={entryTime}
-                onChange={(e) => setEntryTime(e.target.value)}
-                maxLength={5}
-                className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none font-semibold font-mono"
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Exit Time (HH:MM)</label>
-              <input
-                type="text"
-                placeholder="e.g. 15:30"
-                value={exitTime}
-                onChange={(e) => setExitTime(e.target.value)}
-                maxLength={5}
                 className="bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none font-semibold font-mono"
               />
             </div>

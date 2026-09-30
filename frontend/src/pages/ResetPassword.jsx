@@ -150,7 +150,7 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-neutral-955 hover:bg-neutral-850 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
