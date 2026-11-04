@@ -21,7 +21,11 @@ import TradeHistory from "../components/TradeHistory";
 import ProfileSettings from "../components/ProfileSettings";
 import TradingCalendar from "../components/TradingCalendar";
 import AICoach from "../components/AICoach";
+import AICoachUnderDevelopment from "../components/AICoachUnderDevelopment";
 import DailyNotes from "../components/DailyNotes";
+
+// Feature flag: set to false to present 'Under Development' view for deployment
+const ENABLE_AI_COACH = false;
 
 // ─── Initial form state ───────────────────────────────────────────────────────
 const DEFAULT_TRADE_FORM = {
@@ -391,9 +395,13 @@ const Dashboard = () => {
 
         {/* Tab F — AI Coach & Journal */}
         {activeTab === "AICoach" && (
-          <div className="flex-1 overflow-hidden p-6 md:p-8 flex flex-col">
-            <AICoach />
-          </div>
+          ENABLE_AI_COACH ? (
+            <div className="flex-1 overflow-hidden p-6 md:p-8 flex flex-col">
+              <AICoach />
+            </div>
+          ) : (
+            <AICoachUnderDevelopment onGoToDashboard={() => setActiveTab("Dashboard")} />
+          )
         )}
 
         {/* Tab G — Daily Notes */}

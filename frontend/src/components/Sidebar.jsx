@@ -24,7 +24,7 @@ const Sidebar = ({ activeTab, setActiveTab, getFullName, logout }) => {
   const navItems = [
     { key: "Dashboard", label: "Dashboard", icon: <BarChart3 className="w-4 h-4 text-violet-600" /> },
     { key: "Trades", label: "Trades (Log)", icon: <Zap className="w-4 h-4 text-emerald-600" /> },
-    { key: "AICoach", label: "AI Coach", icon: <Bot className="w-4 h-4 text-violet-650" /> },
+    { key: "AICoach", label: "AI Coach", icon: <Bot className="w-4 h-4 text-violet-650" />, badge: "In Dev" },
     { key: "Calendar", label: "Calendar", icon: <CalendarIcon className="w-4 h-4 text-amber-600" /> },
     { key: "DailyNotes", label: "Daily Notes", icon: <StickyNote className="w-4 h-4 text-amber-500" /> },
     { key: "History", label: "History", icon: <History className="w-4 h-4 text-indigo-600" /> },
@@ -41,18 +41,25 @@ const Sidebar = ({ activeTab, setActiveTab, getFullName, logout }) => {
 
         {/* Navigation Links */}
         <nav className="flex flex-col gap-1 p-4 flex-shrink-0">
-          {navItems.map(({ key, label, icon }) => (
+          {navItems.map(({ key, label, icon, badge }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === key
                   ? "bg-slate-100 text-slate-900 font-bold"
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
-              {icon}
-              {label}
+              <div className="flex items-center gap-3">
+                {icon}
+                <span>{label}</span>
+              </div>
+              {badge && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800 tracking-wide">
+                  {badge}
+                </span>
+              )}
             </button>
           ))}
         </nav>
