@@ -14,13 +14,25 @@ else:
 
 class Settings:
     PROJECT_NAME: str = os.getenv("PROJECT_NAME", "QuantCoach AI")
-    DATABASE_URL: str = os.getenv("DATABASE_URL")
+    _raw_db_url: str = (os.getenv("DATABASE_URL") or "mysql+pymysql://journal_user:journal_secure_pass_123@localhost:3307/trading_journal").strip()
+    # Automatically convert bare mysql:// to mysql+pymysql:// if provided by cloud providers (e.g. Aiven/TiDB)
+    DATABASE_URL: str = _raw_db_url.replace("mysql://", "mysql+pymysql://", 1) if _raw_db_url.startswith("mysql://") else _raw_db_url
+    
+    # Remove unsupported ssl-mode query parameters from URI that cause PyMySQL to crash
+    for _ssl_flag in ["?ssl-mode=REQUIRED", "&ssl-mode=REQUIRED", "?ssl-mode=required", "&ssl-mode=required", "ssl-mode=REQUIRED", "ssl-mode=required"]:
+        DATABASE_URL = DATABASE_URL.replace(_ssl_flag, "")
+    if DATABASE_URL.endswith("?"):
+        DATABASE_URL = DATABASE_URL[:-1]
+
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "super-secret-key-change-me")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # Short-lived access token: 15 minutes
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30    # Long-lived refresh token: 30 days
     API_V1_STR: str = "/api/v1"
     REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
+    _raw_redis_url: str = (os.getenv("REDIS_URL") or "").strip()
+    # Valkey is 100% wire-compatible with Redis; normalize valkey:// or valkeys:// scheme to redis:// or rediss:// for redis-py
+    REDIS_URL: str = _raw_redis_url.replace("valkeys://", "rediss://", 1).replace("valkey://", "redis://", 1) if _raw_redis_url else ""
 
     # AI Integration Settings
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")

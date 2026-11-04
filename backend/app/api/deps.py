@@ -16,13 +16,33 @@ oauth2_scheme = OAuth2PasswordBearer(
     auto_error=False  # Don't throw errors automatically, let our custom extractor handle it
 )
 
-# Initialize Redis connection pool
-redis_pool = redis.ConnectionPool(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=0,
-    decode_responses=True
-)
+# In-memory dictionary fallback with TTL when Redis/Valkey is not reachable
+_memory_cache = {}
+
+class MemoryRedisFallback:
+    def setex(self, name: str, time_sec: int, value: str):
+        import time as _t
+        _memory_cache[name] = (value, _t.time() + time_sec)
+        return True
+
+    def get(self, name: str):
+        import time as _t
+        entry = _memory_cache.get(name)
+        if not entry:
+            return None
+        val, expires_at = entry
+        if _t.time() > expires_at:
+            _memory_cache.pop(name, None)
+            return None
+        return val
+
+    def delete(self, *names):
+        for n in names:
+            _memory_cache.pop(n, None)
+        return True
+
+    def close(self):
+        pass
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
@@ -31,12 +51,32 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
-def get_redis() -> Generator[redis.Redis, None, None]:
-    client = redis.Redis(connection_pool=redis_pool)
+def get_redis():
+    """
+    Returns an active Redis/Valkey client or falls back gracefully to in-memory TTL store.
+    """
+    client = None
     try:
+        redis_url = getattr(settings, "REDIS_URL", "")
+        if redis_url:
+            # If rediss:// (SSL) is used, accept server cert
+            kwargs = {"decode_responses": True, "socket_timeout": 2.0}
+            if redis_url.startswith("rediss://"):
+                kwargs["ssl_cert_reqs"] = "none"
+            client = redis.Redis.from_url(redis_url, **kwargs)
+        else:
+            client = redis.Redis(
+                host=settings.REDIS_HOST,
+                port=settings.REDIS_PORT,
+                db=0,
+                decode_responses=True,
+                socket_timeout=2.0
+            )
+        client.ping()
         yield client
-    finally:
         client.close()
+    except Exception:
+        yield MemoryRedisFallback()
 
 def get_token_from_request(request: Request) -> str:
     """
