@@ -179,7 +179,7 @@ const TradeLogger = ({ tradeForm, setTradeForm, lotSizes, handleLogTradeSubmit }
   };
 
   return (
-    <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
+    <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col shadow-sm">
       <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5 border-b border-slate-100 pb-2.5 flex-shrink-0">
         Trade Parameter Details
       </h3>

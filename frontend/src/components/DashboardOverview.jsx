@@ -96,21 +96,21 @@ const DashboardOverview = ({ trades = [] }) => {
   const assetMetrics = getAssetClassMetrics();
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 light-scroll">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 light-scroll">
 
       {/* Header & Filter / Toggle controls */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
           <p className="text-slate-500 text-xs">Aggregated analytics across your closed trade sessions.</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
           {/* Net vs Gross Toggle Button */}
           <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner">
             <button
               onClick={() => setPnlMode("NET")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 pnlMode === "NET"
                   ? "bg-black text-white shadow-sm"
                   : "text-slate-500 hover:text-slate-800"
@@ -120,46 +120,46 @@ const DashboardOverview = ({ trades = [] }) => {
             </button>
             <button
               onClick={() => setPnlMode("TOTAL")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 pnlMode === "TOTAL"
                   ? "bg-black text-white shadow-sm"
                   : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              Total (Gross) P&amp;L
+              Total Gross
             </button>
           </div>
 
           {/* Period Selector Controls */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {period === "CUSTOM" && (
               <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl p-1 shadow-sm animate-fade-in">
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-transparent text-slate-800 outline-none text-xs px-2 py-1 font-semibold"
+                  className="bg-transparent text-slate-800 outline-none text-[11px] sm:text-xs px-1.5 py-1 font-semibold"
                 />
                 <span className="text-slate-400 text-xs">—</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-transparent text-slate-800 outline-none text-xs px-2 py-1 font-semibold"
+                  className="bg-transparent text-slate-800 outline-none text-[11px] sm:text-xs px-1.5 py-1 font-semibold"
                 />
               </div>
             )}
-            <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner">
+            <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner overflow-x-auto max-w-full">
               {[
-                { key: "30", label: "30 Days" },
-                { key: "60", label: "60 Days" },
-                { key: "90", label: "90 Days" },
+                { key: "30", label: "30D" },
+                { key: "60", label: "60D" },
+                { key: "90", label: "90D" },
                 { key: "CUSTOM", label: "Custom" },
               ].map(({ key, label }) => (
                 <button
                   key={key}
                   onClick={() => setPeriod(key)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
                     period === key
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-800"
@@ -174,80 +174,78 @@ const DashboardOverview = ({ trades = [] }) => {
       </div>
 
       {/* Metrics Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {/* P&L Card (Toggles between Net and Gross) */}
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-              {pnlMode === "NET" ? "Net P&L (Period)" : "Total Gross P&L"}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+        {/* P&L Card */}
+        <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between min-h-[105px] hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">
+              {pnlMode === "NET" ? "Net P&L" : "Gross P&L"}
             </span>
-            <TrendingUp className="w-4 h-4 text-slate-400" />
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
           </div>
           <div>
-            <p className={`text-2xl font-black font-mono tracking-tight ${displayPnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+            <p className={`text-lg sm:text-xl md:text-2xl font-black font-mono tracking-tight truncate ${displayPnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
               {displayPnl >= 0 ? "+" : ""}₹{displayPnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-[9px] text-slate-400 mt-1 font-semibold">
-              {pnlMode === "NET" ? "After brokerage & charges" : "Before brokerage & charges"}
+            <p className="text-[9px] text-slate-400 mt-0.5 font-semibold truncate">
+              {pnlMode === "NET" ? "After brokerage" : "Before brokerage"}
             </p>
           </div>
         </div>
 
         {/* Win Rate Card */}
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Win Rate (Period)</span>
-            <Percent className="w-4 h-4 text-slate-400" />
+        <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between min-h-[105px] hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Win Rate</span>
+            <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
           </div>
           <div>
-            <p className="text-2xl font-black font-mono text-violet-600 tracking-tight">
+            <p className="text-lg sm:text-xl md:text-2xl font-black font-mono text-violet-600 tracking-tight">
               {winRate.toFixed(1)}%
             </p>
-            <p className="text-[9px] text-slate-400 mt-1 font-semibold">{winningTrades.length} W / {losingTrades.length} L</p>
+            <p className="text-[9px] text-slate-400 mt-0.5 font-semibold truncate">{winningTrades.length} W / {losingTrades.length} L</p>
           </div>
         </div>
 
         {/* Starting Capital Card */}
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Starting Capital</span>
-            <Wallet className="w-4 h-4 text-slate-400" />
+        <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between min-h-[105px] hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Start Capital</span>
+            <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
           </div>
           <div>
-            <p className="text-2xl font-black font-mono text-slate-800 tracking-tight">
+            <p className="text-lg sm:text-xl md:text-2xl font-black font-mono text-slate-800 tracking-tight truncate">
               ₹{(metrics.total_capital || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-[9px] text-slate-400 mt-1 font-semibold">Total net funding added</p>
+            <p className="text-[9px] text-slate-400 mt-0.5 font-semibold truncate">Net funding added</p>
           </div>
         </div>
 
         {/* Total Brokerage Card */}
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Brokerage</span>
-            <Wallet className="w-4 h-4 text-slate-400" />
+        <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between min-h-[105px] hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Brokerage</span>
+            <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
           </div>
           <div>
-            <p className="text-2xl font-black font-mono text-amber-600 tracking-tight">
+            <p className="text-lg sm:text-xl md:text-2xl font-black font-mono text-amber-600 tracking-tight truncate">
               ₹{(metrics.total_brokerage || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-[9px] text-slate-400 mt-1 font-semibold">Total charges paid lifetime</p>
+            <p className="text-[9px] text-slate-400 mt-0.5 font-semibold truncate">Charges lifetime</p>
           </div>
         </div>
 
-        {/* Account Balance Card */}
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between h-28 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Account Balance</span>
-            <ArrowUpRight className="w-4 h-4 text-slate-400" />
+        {/* Account Balance Card (Spans full 2 columns on small screens, 1 column on desktop) */}
+        <div className="col-span-2 sm:col-span-1 bg-white border border-slate-200 p-4 sm:p-5 rounded-2xl text-left shadow-sm flex flex-col justify-between min-h-[105px] hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Balance</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
           </div>
           <div>
-            <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-black font-mono text-slate-900 tracking-tight">
-                ₹{(metrics.current_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <p className="text-[9px] text-slate-400 mt-1 font-semibold">Current net worth</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-black font-mono text-slate-900 tracking-tight truncate">
+              ₹{(metrics.current_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p className="text-[9px] text-slate-400 mt-0.5 font-semibold truncate">Current net worth</p>
           </div>
         </div>
       </div>

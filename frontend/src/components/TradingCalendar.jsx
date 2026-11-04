@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText, ArrowRight } from "lucide-react";
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -122,19 +122,19 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
   const { monthlyPnl } = getMonthlyStats();
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 light-scroll animate-fade-in">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 light-scroll animate-fade-in">
       
       {/* Top Header & Controls Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-            <CalendarIcon className="w-6 h-6 text-slate-700" />
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
             Trading Calendar
           </h1>
           <p className="text-slate-500 text-xs">View your trading activity daily. Hover for exact Net/Gross P&amp;L breakdown and click to view trades.</p>
         </div>
         
-        <div className="flex items-center gap-3 self-start sm:self-center">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
           {/* Calendar P&L Mode Toggle */}
           <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner">
             <button
@@ -151,7 +151,7 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                 calPnlMode === "TOTAL" ? "bg-black text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              Total (Gross) P&amp;L
+              Total Gross
             </button>
           </div>
 
@@ -172,36 +172,36 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
         </div>
       </div>
 
-      {/* Calendar Card Panel */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm max-w-5xl mx-auto overflow-x-auto">
-        <div className="min-w-[800px] md:min-w-[900px]">
+      {/* Calendar Card Panel (Fits 100% on mobile without horizontal scroll) */}
+      <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-2.5 sm:p-6 shadow-sm max-w-5xl mx-auto w-full">
+        <div className="w-full">
           
           {/* Month Selector & Monthly P&L Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-black text-slate-800 tracking-tight">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 mb-4 sm:mb-6">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <h2 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">
                 {monthNames[currentMonth]} {currentYear}
               </h2>
               <div className="flex items-center gap-1">
                 <button
                   onClick={handlePrevMonth}
-                  className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all"
+                  className="p-1 sm:p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={handleNextMonth}
-                  className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all"
+                  className="p-1 sm:p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all"
                 >
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
-            <div className="text-right flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Monthly {calPnlMode === "NET" ? "Net" : "Gross"} P&amp;L:
+            <div className="text-left sm:text-right flex items-center gap-2">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Monthly {calPnlMode === "NET" ? "Net" : "Gross"}:
               </span>
-              <span className={`text-sm font-black font-mono px-3 py-1 rounded-xl shadow-sm ${
+              <span className={`text-xs sm:text-sm font-black font-mono px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-xl shadow-sm ${
                 monthlyPnl >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
               }`}>
                 {monthlyPnl >= 0 ? "+" : ""}₹{monthlyPnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -210,20 +210,23 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
           </div>
 
           {/* 8-Column Calendar Grid */}
-          <div className="grid grid-cols-8 gap-2">
+          <div className="grid grid-cols-8 gap-0.5 sm:gap-1.5 md:gap-2 w-full">
             
             {/* Weekday Column Headers */}
             {weekdayLabels.map((label) => (
               <div
                 key={label}
-                className="text-center font-bold text-[11px] text-slate-400 uppercase tracking-widest py-2"
+                className="text-center font-bold text-[9px] sm:text-[11px] text-slate-400 uppercase tracking-wider py-1 sm:py-2"
               >
-                {label}
+                <span className="sm:hidden">{label.slice(0, 1)}</span>
+                <span className="hidden sm:inline md:hidden">{label.slice(0, 3)}</span>
+                <span className="hidden md:inline">{label}</span>
               </div>
             ))}
             {/* Total Column Header */}
-            <div className="text-center font-bold text-[11px] text-slate-500 uppercase tracking-widest py-2 border-l border-slate-100">
-              Total
+            <div className="text-center font-bold text-[9px] sm:text-[11px] text-slate-500 uppercase tracking-wider py-1 sm:py-2 border-l border-slate-100">
+              <span className="sm:hidden">Tot</span>
+              <span className="hidden sm:inline">Total</span>
             </div>
 
             {/* Week Rows */}
@@ -289,11 +292,11 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                       <div
                         key={`${dateStr}-${idx}`}
                         onClick={() => onDayClick(dateStr)}
-                        className={`relative group flex flex-col justify-between h-20 md:h-24 p-2 md:p-2.5 border rounded-2xl cursor-pointer transition-all ${cellCls}`}
+                        className={`relative group flex flex-col justify-between h-13 sm:h-20 md:h-24 p-1 sm:p-2 md:p-2.5 border rounded-lg sm:rounded-2xl cursor-pointer transition-all ${cellCls}`}
                       >
                         {/* Top row: day number and document icon */}
                         <div className="flex justify-between items-center w-full">
-                          <span className={`text-[10px] font-bold ${
+                          <span className={`text-[9px] sm:text-[10px] font-bold ${
                             hasTrades
                               ? "text-white/80"
                               : cell.isCurrentMonth
@@ -305,13 +308,13 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                             {String(cell.dayNum).padStart(2, "0")}
                           </span>
                           {hasTrades && (
-                            <FileText className="w-3.5 h-3.5 text-white/95" />
+                            <FileText className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-white/95 hidden sm:block" />
                           )}
                         </div>
 
                         {/* Center row: short P&L value */}
-                        <div className="text-center">
-                          <span className={`text-xs md:text-sm font-black tracking-tight font-sans ${
+                        <div className="text-center my-auto">
+                          <span className={`text-[8.5px] sm:text-xs md:text-sm font-black tracking-tight font-sans truncate block ${
                             hasTrades ? "text-white" : "text-slate-350"
                           }`}>
                             {formatLargePnl(displayDayPnl)}
@@ -319,7 +322,7 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
                         </div>
 
                         {/* Bottom row: trades count */}
-                        <div className={`text-[9px] font-sans truncate ${
+                        <div className={`text-[8px] sm:text-[9px] font-sans truncate hidden sm:block ${
                           hasTrades ? "text-white/85" : "text-slate-400"
                         }`}>
                           {dayTrades.length} trade{dayTrades.length !== 1 ? "s" : ""}
@@ -365,19 +368,19 @@ const TradingCalendar = ({ trades = [], onDayClick }) => {
 
                   {/* 8th Column: Weekly Total Summary */}
                   <div
-                    className="flex flex-col justify-between h-20 md:h-24 p-2 md:p-2.5 border border-slate-100 bg-slate-50/50 rounded-2xl select-none border-l-2"
+                    className="flex flex-col justify-between h-13 sm:h-20 md:h-24 p-1 sm:p-2 md:p-2.5 border border-slate-100 bg-slate-50/50 rounded-lg sm:rounded-2xl select-none border-l-2"
                   >
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Wk {weekIdx + 1}
                     </div>
-                    <div className="text-center">
-                      <span className={`text-xs md:text-sm font-black tracking-tight font-sans ${
+                    <div className="text-center my-auto">
+                      <span className={`text-[8.5px] sm:text-xs md:text-sm font-black tracking-tight font-sans truncate block ${
                         weeklyPnl > 0 ? "text-emerald-600" : weeklyPnl < 0 ? "text-rose-500" : "text-slate-350"
                       }`}>
                         {formatLargePnl(weeklyPnl)}
                       </span>
                     </div>
-                    <div className="text-[9px] text-slate-400 font-sans truncate">
+                    <div className="text-[8px] sm:text-[9px] text-slate-400 font-sans truncate hidden sm:block">
                       {weeklyTradesCount} trade{weeklyTradesCount !== 1 ? "s" : ""}
                     </div>
                   </div>

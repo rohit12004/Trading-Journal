@@ -64,7 +64,7 @@ const Login = () => {
     <div className="h-screen w-screen overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
       
       {/* Left Column: Form Area */}
-      <div className="flex flex-col justify-between items-center py-6 px-6 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
+      <div className="flex flex-col justify-between items-center py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
         <div /> {/* Spacer */}
         
         {/* Main Content Area (Increased from max-w-sm to max-w-md) */}

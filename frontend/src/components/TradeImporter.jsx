@@ -121,7 +121,7 @@ const TradeImporter = () => {
   const labelCls = "text-xs font-bold text-slate-800";
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between min-h-[360px] h-auto text-left hover:shadow-md transition-shadow">
+    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between min-h-[360px] h-auto text-left hover:shadow-md transition-shadow">
       <div>
         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Import Broker Statement</h3>
         <p className="text-slate-500 text-[11px] mt-0.5 mb-4">Upload your trade report sheet to import records automatically.</p>
@@ -252,9 +252,9 @@ const TradeImporter = () => {
             )}
 
             {/* Modal Body (Trade Table) */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-inner">
-                <table className="w-full text-left text-xs border-collapse">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+              <div className="border border-slate-100 rounded-2xl overflow-x-auto shadow-inner">
+                <table className="w-full text-left text-xs border-collapse min-w-[680px]">
                   <thead>
                     <tr className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100">
                       <th className="py-3 px-4 w-[6%] text-center">

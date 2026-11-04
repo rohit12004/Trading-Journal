@@ -219,12 +219,90 @@ const FuturesRow = ({ t, handleDeleteTrade, handleEditTrade }) => (
 
 // ─── Section wrapper (Stocks / Options / Futures) ─────────────────────────────
 const AssetSection = ({ icon, title, trades, RowComponent, handleDeleteTrade, handleEditTrade }) => (
-  <div className="space-y-2">
+  <div className="space-y-3">
     <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
       {icon}
       {title} ({trades.length})
     </h4>
-    <div className="overflow-x-auto">
+
+    {/* Mobile Card Layout (Fits 100% width, NO horizontal scroll needed) */}
+    <div className="md:hidden space-y-2.5">
+      {trades.map((t) => (
+        <div key={t.id} className="p-3.5 bg-slate-50/70 border border-slate-200/90 rounded-xl space-y-2 text-left">
+          {/* Row 1: Symbol, Direction, Strike (if option), and Net P&L */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-900 text-sm">{t.symbol}</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                ["BUY", "CALL"].includes(t.direction) ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+              }`}>
+                {t.direction}
+              </span>
+              {t.strike_price && (
+                <span className="text-[10px] text-slate-500 font-mono font-semibold">
+                  ₹{t.strike_price}
+                </span>
+              )}
+            </div>
+            <div className={`font-mono font-black text-sm ${t.pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+              {t.pnl >= 0 ? "+" : ""}₹{t.pnl?.toFixed(2)}
+            </div>
+          </div>
+
+          {/* Row 2: In / Out Prices & Qty */}
+          <div className="flex justify-between items-center text-xs text-slate-600 border-t border-slate-100 pt-1.5">
+            <div className="flex items-center gap-3">
+              <span><span className="text-slate-400">In:</span> ₹{t.entry_price?.toFixed(2)}</span>
+              <span>
+                <span className="text-slate-400">Out:</span>{" "}
+                {t.exit_price ? `₹${t.exit_price.toFixed(2)}` : <span className="text-emerald-600 font-bold">OPEN</span>}
+              </span>
+            </div>
+            <div className="font-semibold text-slate-600">
+              {t.quantity} {title === "Stocks" ? "sh" : "lots"}
+            </div>
+          </div>
+
+          {/* Row 3: Strategy & Notes (if any) */}
+          {(t.strategy || t.notes) && (
+            <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-lg border border-slate-100 space-y-1">
+              {t.strategy && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-violet-700 bg-violet-50 px-2 py-0.5 rounded border border-violet-100">
+                    {t.strategy}
+                  </span>
+                </div>
+              )}
+              {t.notes && <p className="text-slate-600 text-xs leading-relaxed">{t.notes}</p>}
+            </div>
+          )}
+
+          {/* Row 4: Brokerage & Action Buttons */}
+          <div className="flex justify-between items-center pt-1.5 border-t border-slate-100 text-[10px] text-slate-400">
+            <span>Brokerage: ₹{parseFloat(t.brokerage || 0).toFixed(2)}</span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => handleEditTrade(t)}
+                className="text-violet-600 font-bold hover:underline flex items-center gap-1 p-1"
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteTrade(t.id)}
+                className="text-red-500 font-bold hover:underline flex items-center gap-1 p-1"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Desktop Table View (For md: and larger screens) */}
+    <div className="hidden md:block overflow-x-auto">
       <table className="w-full text-sm text-slate-700 table-fixed min-w-[750px]">
         <thead>
           <tr className="border-b border-slate-200 text-slate-400 font-bold text-xs text-left">
@@ -273,12 +351,12 @@ const TradeHistory = ({
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 light-scroll">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 light-scroll">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pb-5 border-b border-slate-200">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Trade History</h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Trade History</h1>
           <p className="text-slate-500 text-xs">Review historical trades day-by-day grouped by Stocks, Options, and Futures.</p>
         </div>
       </div>
@@ -286,13 +364,25 @@ const TradeHistory = ({
       {/* Filter Control Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm text-left">
 
-        {/* Period presets */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Period Presets: Dropdown on mobile (no scroll), pill buttons on tablet/desktop */}
+        <div className="sm:hidden w-full">
+          <select
+            value={historyPeriod}
+            onChange={(e) => setHistoryPeriod(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 focus:border-violet-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none shadow-sm"
+          >
+            {periodPresets.map(({ key, label }) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="hidden sm:flex flex-wrap items-center gap-1.5">
           {periodPresets.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setHistoryPeriod(key)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all ${historyPeriod === key
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${historyPeriod === key
                 ? "bg-black border-black text-white"
                 : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                 }`}
@@ -303,13 +393,13 @@ const TradeHistory = ({
         </div>
 
         {/* Date pickers + Asset Class filter */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {historyPeriod === "CUSTOM_DATE" && (
             <input
               type="date"
               value={customDate}
               onChange={(e) => setCustomDate(e.target.value)}
-              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none shadow-sm"
+              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 outline-none shadow-sm flex-1 sm:flex-initial"
             />
           )}
           {historyPeriod === "CUSTOM_MONTH" && (
@@ -317,15 +407,15 @@ const TradeHistory = ({
               type="month"
               value={customMonth}
               onChange={(e) => setCustomMonth(e.target.value)}
-              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none shadow-sm"
+              className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 outline-none shadow-sm flex-1 sm:flex-initial"
             />
           )}
           <select
             value={historyAssetClass}
             onChange={(e) => setHistoryAssetClass(e.target.value)}
-            className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none shadow-sm font-bold"
+            className="bg-white border border-slate-200 focus:border-violet-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 outline-none shadow-sm font-bold flex-1 sm:flex-initial"
           >
-            <option value="ALL">ALL ASSET CLASSES</option>
+            <option value="ALL">ALL ASSETS</option>
             <option value="STOCKS">STOCKS ONLY</option>
             <option value="OPTIONS">OPTIONS ONLY</option>
             <option value="FUTURES">FUTURES ONLY</option>
@@ -352,14 +442,14 @@ const TradeHistory = ({
               <div key={dateKey} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm text-left">
 
                 {/* Day Header */}
-                <div className="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                <div className="bg-slate-50 border-b border-slate-200 px-4 sm:px-5 py-3 sm:py-3.5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                   <div className="flex items-center gap-2.5">
                     <CalendarIcon className="w-4.5 h-4.5 text-slate-400" />
                     <h3 className="text-sm font-bold text-slate-800">{formatDateLabel(dateKey)}</h3>
                   </div>
-                  <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs">
                     <span className="text-slate-500 font-semibold">
-                      {dailyTradesCount} trade{dailyTradesCount !== 1 ? "s" : ""} logged
+                      {dailyTradesCount} trade{dailyTradesCount !== 1 ? "s" : ""}
                     </span>
                     <span className={`font-extrabold font-mono text-sm px-2.5 py-0.5 rounded-full ${dailyPnl >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
                       }`}>
@@ -369,7 +459,7 @@ const TradeHistory = ({
                 </div>
 
                 {/* Day Content */}
-                <div className="p-5 space-y-6">
+                <div className="p-4 sm:p-5 space-y-6">
                   {stocksList.length > 0 && (
                     <AssetSection
                       icon={<TrendingUp className="w-3.5 h-3.5 text-emerald-600" />}

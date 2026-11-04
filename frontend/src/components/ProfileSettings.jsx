@@ -60,18 +60,18 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 w-full text-left">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 w-full text-left">
 
       {/* Header */}
       <div className="pb-4 border-b border-slate-200">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Profile &amp; Address Settings</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Profile &amp; Address Settings</h1>
         <p className="text-slate-500 text-xs">Manage your personal details, email credentials, and billing address coordinates.</p>
       </div>
 
       <form onSubmit={handleProfileSave} className="space-y-6">
 
         {/* Personal Info Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Personal Info</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -121,7 +121,7 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
         </div>
 
         {/* Billing Address Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Billing Address</h3>
 
           <div className="flex flex-col space-y-1">
@@ -135,7 +135,7 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col space-y-1">
               <label className={labelCls}>City</label>
               <input
@@ -158,7 +158,7 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col space-y-1">
               <label className={labelCls}>Country</label>
               <input
@@ -285,7 +285,7 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
               </div>
             ) : (
               <div className="overflow-x-auto border border-slate-100 rounded-xl">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                   <thead>
                     <tr className="bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                       <th className="py-2.5 px-4">Date &amp; Time</th>

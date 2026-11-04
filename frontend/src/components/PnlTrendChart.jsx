@@ -168,7 +168,7 @@ const PnlTrendChart = ({ trades = [], pnlMode = "NET", period = "30" }) => {
   const isOverallProfit = summaryStats.current >= 0;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow text-left">
+    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow text-left">
 
       {/* Chart Header & Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
@@ -187,10 +187,10 @@ const PnlTrendChart = ({ trades = [], pnlMode = "NET", period = "30" }) => {
         </div>
 
         {/* View Switcher: Cumulative vs Daily */}
-        <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner self-start sm:self-center">
+        <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5 shadow-inner w-full sm:w-auto">
           <button
             onClick={() => setChartView("CUMULATIVE")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${chartView === "CUMULATIVE"
+            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${chartView === "CUMULATIVE"
                 ? "bg-white text-slate-800 shadow-sm"
                 : "text-slate-500 hover:text-slate-800"
               }`}
@@ -200,7 +200,7 @@ const PnlTrendChart = ({ trades = [], pnlMode = "NET", period = "30" }) => {
           </button>
           <button
             onClick={() => setChartView("DAILY")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${chartView === "DAILY"
+            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${chartView === "DAILY"
                 ? "bg-white text-slate-800 shadow-sm"
                 : "text-slate-500 hover:text-slate-800"
               }`}

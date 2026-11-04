@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { Menu } from "lucide-react";
 import {
   useTradesQuery,
   useMetricsQuery,
@@ -60,6 +61,7 @@ const Dashboard = () => {
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("Dashboard");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [tradeMode, setTradeMode] = useState("MANUAL"); // MANUAL or IMPORT
 
   // History filters
@@ -294,16 +296,46 @@ const Dashboard = () => {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="h-screen w-screen bg-slate-50 text-slate-900 flex overflow-hidden font-sans">
+    <div className="h-screen h-[100dvh] w-screen bg-slate-50 text-slate-900 flex overflow-hidden font-sans">
 
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         getFullName={getFullName}
         logout={logout}
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
 
-      <main className="flex-1 h-full bg-slate-50 flex flex-col overflow-hidden">
+      <main className="flex-1 h-full min-h-0 bg-slate-50 flex flex-col overflow-hidden min-w-0">
+
+        {/* Mobile Top App Bar */}
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0 z-30">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="p-1.5 -ml-1 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-extrabold tracking-tight text-slate-900">QuantCoach</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+                {activeTab === "AICoach" ? "AI Coach" : activeTab === "DailyNotes" ? "Notes" : activeTab}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab("Profile & Settings")}
+            className="w-8 h-8 rounded-full bg-violet-100 border border-violet-200 flex items-center justify-center text-violet-600 text-xs font-bold"
+            aria-label="Profile settings"
+          >
+            {user?.first_name ? user.first_name[0].toUpperCase() : "U"}
+          </button>
+        </header>
 
         {/* Tab A — Dashboard Overview */}
         {activeTab === "Dashboard" && (
@@ -314,19 +346,19 @@ const Dashboard = () => {
 
         {/* Tab B — Log Trades */}
         {activeTab === "Trades" && (
-          <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-4 light-scroll">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-4 light-scroll">
             <div className="pb-4 border-b border-slate-200 flex-shrink-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">Log Day Trades</h1>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Log Day Trades</h1>
                 <p className="text-slate-500 text-xs">Record completed or open trade executions for today.</p>
               </div>
 
               {/* Mode Switcher Toggle */}
-              <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner gap-0.5 self-start sm:self-center">
+              <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner gap-0.5 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setTradeMode("MANUAL")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${tradeMode === "MANUAL"
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${tradeMode === "MANUAL"
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-800"
                     }`}
@@ -336,7 +368,7 @@ const Dashboard = () => {
                 <button
                   type="button"
                   onClick={() => setTradeMode("IMPORT")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${tradeMode === "IMPORT"
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${tradeMode === "IMPORT"
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-800"
                     }`}

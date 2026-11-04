@@ -10,13 +10,16 @@ import {
   ShieldAlert, 
   Zap, 
   Calendar, 
-  Sparkles 
+  Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 
 const Landing = () => {
   const { user } = useAuthStore();
   const [isScrolled, setIsScrolled] = useState(false);
   const [featuresOpen, setFeaturesOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Track scroll position for sticky transparent navbar
   useEffect(() => {
@@ -131,16 +134,16 @@ const Landing = () => {
             </div>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {user ? (
               <Link
                 to="/dashboard"
-                className="px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-sm font-semibold shadow-lg hover:shadow-violet-500/20 transition-all"
+                className="px-4 sm:px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-lg hover:shadow-violet-500/20 transition-all"
               >
-                Go to Dashboard
+                Dashboard
               </Link>
             ) : (
-              <>
+              <div className="hidden sm:flex items-center gap-4">
                 <Link
                   to="/login"
                   className="text-neutral-400 hover:text-white text-sm font-semibold transition-colors"
@@ -153,14 +156,77 @@ const Landing = () => {
                 >
                   Start Now
                 </Link>
-              </>
+              </div>
             )}
+
+            {/* Mobile Hamburger Toggle Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden px-6 py-4 bg-neutral-950/95 backdrop-blur-xl border-b border-white/10 space-y-4 animate-fade-in text-left">
+            <div className="space-y-2 border-b border-white/5 pb-3">
+              <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">Features</span>
+              <div className="space-y-1 text-xs text-neutral-300">
+                <div className="flex items-center gap-2 py-1">
+                  <TrendingUp className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Manual Trade Logger</span>
+                </div>
+                <div className="flex items-center gap-2 py-1">
+                  <Check className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Statement Importer</span>
+                </div>
+                <div className="flex items-center gap-2 py-1">
+                  <BrainCircuit className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Interactive Dashboard</span>
+                </div>
+                <div className="flex items-center gap-2 py-1">
+                  <Calendar className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Trading Calendar</span>
+                </div>
+              </div>
+            </div>
+
+            {!user ? (
+              <div className="flex flex-col gap-2 pt-1">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center bg-white/5 hover:bg-white/10 text-white rounded-lg text-xs font-semibold border border-white/10 transition-colors"
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg text-xs font-semibold shadow-lg transition-all"
+                >
+                  Start Now
+                </Link>
+              </div>
+            ) : (
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full py-2.5 text-center bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg text-xs font-semibold shadow-lg"
+              >
+                Go to Dashboard
+              </Link>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Hero Section (Full Width Grid) */}
-      <section className="w-full px-6 md:px-12 lg:px-20 pt-32 pb-20 lg:pt-40">
+      <section className="w-full px-4 sm:px-6 md:px-12 lg:px-20 pt-28 sm:pt-32 pb-16 lg:pt-40">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Hero Left Content */}

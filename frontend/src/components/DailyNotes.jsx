@@ -170,12 +170,12 @@ const DailyNotes = () => {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 light-scroll text-left">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 light-scroll text-left">
       {/* Top Header */}
       <div className="pb-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Daily Notes &amp; Journal</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Daily Notes &amp; Journal</h1>
             <span className="bg-amber-100 text-amber-800 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
               {safeNotes.length} saved
             </span>
@@ -188,7 +188,7 @@ const DailyNotes = () => {
         {!isCreating && (
           <button
             onClick={handleOpenCreateForm}
-            className="px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 self-start sm:self-center"
+            className="w-full sm:w-auto px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4 text-amber-400" />
             Create Daily Note
@@ -330,13 +330,13 @@ const DailyNotes = () => {
           />
         </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-1 overflow-x-auto py-1 light-scroll">
+        {/* Category Pills (horizontally scrollable on mobile) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1 light-scroll flex-nowrap sm:flex-wrap">
           {["ALL", ...CATEGORIES].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategoryFilter(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
                 selectedCategoryFilter === cat
                   ? "bg-slate-900 text-white shadow-sm"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"

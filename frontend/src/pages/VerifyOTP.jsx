@@ -144,7 +144,7 @@ const VerifyOTP = () => {
     <div className="h-screen w-screen overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
       
       {/* Left Column: Form Area */}
-      <div className="flex flex-col justify-between items-center py-6 px-6 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
+      <div className="flex flex-col justify-between items-center py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
         <div /> {/* Spacer */}
         
         {/* Main Content Area (Increased width to match login/register) */}
@@ -160,7 +160,7 @@ const VerifyOTP = () => {
           <form onSubmit={handleSubmit} className="w-full space-y-5">
             
             {/* OTP Digit Inputs */}
-            <div className="flex justify-between gap-2.5" onPaste={handlePaste}>
+            <div className="flex justify-between gap-1.5 sm:gap-2.5 max-w-full" onPaste={handlePaste}>
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -171,7 +171,7 @@ const VerifyOTP = () => {
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   disabled={timer <= 0 || loading}
-                  className="w-12 h-14 text-center text-xl font-bold border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg text-neutral-950 transition-all outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-10 sm:w-12 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg text-neutral-950 transition-all outline-none disabled:opacity-30 disabled:cursor-not-allowed"
                 />
               ))}
             </div>
