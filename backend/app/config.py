@@ -13,6 +13,7 @@ else:
     load_dotenv()
 
 class Settings:
+    BACKEND_DIR: Path = BACKEND_DIR
     PROJECT_NAME: str = os.getenv("PROJECT_NAME", "QuantCoach AI")
     _raw_db_url: str = (os.getenv("DATABASE_URL") or "mysql+pymysql://journal_user:journal_secure_pass_123@localhost:3307/trading_journal").strip()
     # Automatically convert bare mysql:// to mysql+pymysql:// if provided by cloud providers (e.g. Aiven/TiDB)

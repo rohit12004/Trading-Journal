@@ -1,4 +1,5 @@
 import sys
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -28,7 +29,9 @@ from alembic.config import Config
 def run_alembic_migrations():
     try:
         # Load Alembic configuration and run upgrade programmatically
-        alembic_cfg = Config("alembic.ini")
+        ini_path = getattr(settings, "BACKEND_DIR", None)
+        alembic_ini = str(ini_path / "alembic.ini") if (ini_path and (ini_path / "alembic.ini").exists()) else "alembic.ini"
+        alembic_cfg = Config(alembic_ini)
         command.upgrade(alembic_cfg, "head")
         print("Alembic migrations completed successfully.")
     except Exception as e:
@@ -57,9 +60,13 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
+cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173")
+cors_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

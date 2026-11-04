@@ -37,6 +37,7 @@ class UserResponse(UserBase):
     created_at: datetime
     address_line1: Optional[str] = None
     city: Optional[str] = None
+    district: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
     postal_code: Optional[str] = None
@@ -50,6 +51,7 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = Field(None, max_length=100)
     address_line1: Optional[str] = Field(None, max_length=255)
     city: Optional[str] = Field(None, max_length=100)
+    district: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=100)
     country: Optional[str] = Field(None, max_length=100)
     postal_code: Optional[str] = Field(None, max_length=20)

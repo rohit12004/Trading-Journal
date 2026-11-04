@@ -19,6 +19,7 @@ class User(Base):
     # Address columns
     address_line1 = Column(String(255), nullable=True)
     city = Column(String(100), nullable=True)
+    district = Column(String(100), nullable=True)
     state = Column(String(100), nullable=True)
     country = Column(String(100), nullable=True)
     postal_code = Column(String(20), nullable=True)

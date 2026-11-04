@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { RefreshCw, Trash2, Plus, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { RefreshCw, Trash2, Plus, ArrowUpRight, ArrowDownLeft, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCapitalTransactionsQuery,
@@ -12,6 +12,85 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
 
   const inputCls = "bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none placeholder-slate-400";
   const labelCls = "text-xs font-bold text-slate-800";
+
+  const [pinLoading, setPinLoading] = useState(false);
+  const pinCacheRef = useRef({});
+  const lastFetchedPinRef = useRef("");
+  const debounceTimerRef = useRef(null);
+
+  const fetchAddressFromPincode = async (code, manual = false) => {
+    const clean = (code || "").trim().replace(/\s+/g, "");
+    if (!clean || clean.length < 5) return;
+
+    // Prevent duplicate network calls for the same PIN code unless manually clicked
+    if (!manual && clean === lastFetchedPinRef.current) return;
+
+    // Use cached response if already fetched
+    if (pinCacheRef.current[clean]) {
+      const cached = pinCacheRef.current[clean];
+      update(cached);
+      lastFetchedPinRef.current = clean;
+      return;
+    }
+
+    // 1. Indian 6-digit PIN code via PostalPincode API
+    if (/^\d{6}$/.test(clean)) {
+      setPinLoading(true);
+      lastFetchedPinRef.current = clean;
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${clean}`);
+        const data = await res.json();
+        if (data && data[0]?.Status === "Success" && data[0]?.PostOffice?.length > 0) {
+          const po = data[0].PostOffice[0];
+          const detectedCity = (po.Block && po.Block !== "NA") ? po.Block : (po.Name || "");
+          const detectedDistrict = po.District || "";
+          const detectedState = po.State || "";
+          const detectedCountry = po.Country || "India";
+          const resObj = {
+            city: detectedCity,
+            district: detectedDistrict,
+            state: detectedState,
+            country: detectedCountry,
+          };
+          pinCacheRef.current[clean] = resObj;
+          update(resObj);
+          toast.success(`Autofilled: ${detectedCity}, ${detectedDistrict}`);
+        } else if (manual) {
+          toast.error("No location found for this PIN code.");
+        }
+      } catch (err) {
+        console.error("Postal PIN code lookup error:", err);
+      } finally {
+        setPinLoading(false);
+      }
+    } else if (/^\d{5}$/.test(clean)) {
+      // 2. Global / US 5-digit ZIP code via Zippopotam API
+      setPinLoading(true);
+      lastFetchedPinRef.current = clean;
+      try {
+        const res = await fetch(`https://api.zippopotam.us/us/${clean}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.places?.length > 0) {
+            const place = data.places[0];
+            const resObj = {
+              city: place["place name"] || "",
+              district: "",
+              state: place["state"] || "",
+              country: data["country"] || "United States",
+            };
+            pinCacheRef.current[clean] = resObj;
+            update(resObj);
+            toast.success(`Autofilled: ${place["place name"]}, ${place["state"]}`);
+          }
+        }
+      } catch (err) {
+        console.error("ZIP code lookup error:", err);
+      } finally {
+        setPinLoading(false);
+      }
+    }
+  };
 
   const getLocalDatetimeString = (date) => {
     const tzoffset = date.getTimezoneOffset() * 60000;
@@ -122,7 +201,10 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
 
         {/* Billing Address Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Billing Address</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Billing Address</h3>
+            <span className="text-[11px] text-violet-600 font-medium hidden sm:inline">Auto-detects City &amp; State from PIN</span>
+          </div>
 
           <div className="flex flex-col space-y-1">
             <label className={labelCls}>Address Line 1</label>
@@ -136,46 +218,108 @@ const ProfileSettings = ({ profileForm, setProfileForm, profileLoading, user, ha
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 2. Postal / PIN Code */}
             <div className="flex flex-col space-y-1">
-              <label className={labelCls}>City</label>
+              <div className="flex items-center justify-between">
+                <label className={labelCls}>Postal / PIN Code</label>
+                <span className="text-[10px] text-slate-400">e.g. 560001</span>
+              </div>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  maxLength={10}
+                  value={profileForm.postal_code}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    update({ postal_code: val });
+                    const clean = val.trim().replace(/\s+/g, "");
+                    // Clear previous debounce timer
+                    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+                    // Only fetch when exactly 6 digits (or 5 digits) and typing has paused
+                    if (clean.length === 6 || clean.length === 5) {
+                      debounceTimerRef.current = setTimeout(() => {
+                        fetchAddressFromPincode(clean, false);
+                      }, 500);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      fetchAddressFromPincode(profileForm.postal_code, true);
+                    }
+                  }}
+                  placeholder="Enter PIN code"
+                  className={`${inputCls} w-full pr-16`}
+                />
+                <div className="absolute right-1.5 flex items-center">
+                  <button
+                    type="button"
+                    disabled={pinLoading || !profileForm.postal_code}
+                    onClick={() => fetchAddressFromPincode(profileForm.postal_code, true)}
+                    className="px-2 py-1 text-[10px] font-bold text-violet-600 hover:text-violet-750 bg-violet-50 hover:bg-violet-100 rounded-md transition-colors flex items-center gap-1 disabled:opacity-40"
+                    title="Lookup city and district"
+                  >
+                    {pinLoading ? (
+                      <RefreshCw className="w-3 h-3 text-violet-600 animate-spin" />
+                    ) : (
+                      <>
+                        <Search className="w-2.5 h-2.5" />
+                        <span>Find</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. City / Town */}
+            <div className="flex flex-col space-y-1">
+              <label className={labelCls}>City / Town</label>
               <input
                 type="text"
                 value={profileForm.city}
                 onChange={(e) => update({ city: e.target.value })}
-                placeholder="New York"
-                className={inputCls}
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <label className={labelCls}>State / Region</label>
-              <input
-                type="text"
-                value={profileForm.state}
-                onChange={(e) => update({ state: e.target.value })}
-                placeholder="NY"
+                placeholder="City / Town"
                 className={inputCls}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 4. District */}
+            <div className="flex flex-col space-y-1">
+              <label className={labelCls}>District</label>
+              <input
+                type="text"
+                value={profileForm.district}
+                onChange={(e) => update({ district: e.target.value })}
+                placeholder="District"
+                className={inputCls}
+              />
+            </div>
+
+            {/* 5. State / Region */}
+            <div className="flex flex-col space-y-1">
+              <label className={labelCls}>State / Region</label>
+              <input
+                type="text"
+                value={profileForm.state}
+                onChange={(e) => update({ state: e.target.value })}
+                placeholder="State / Region"
+                className={inputCls}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 6. Country */}
             <div className="flex flex-col space-y-1">
               <label className={labelCls}>Country</label>
               <input
                 type="text"
                 value={profileForm.country}
                 onChange={(e) => update({ country: e.target.value })}
-                placeholder="United States"
-                className={inputCls}
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <label className={labelCls}>Postal / ZIP Code</label>
-              <input
-                type="text"
-                value={profileForm.postal_code}
-                onChange={(e) => update({ postal_code: e.target.value })}
-                placeholder="10001"
+                placeholder="Country"
                 className={inputCls}
               />
             </div>
