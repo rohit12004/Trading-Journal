@@ -1,6 +1,19 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "/api/v1";
+let API_URL = import.meta.env.VITE_API_URL || "/api/v1";
+
+// Auto-correct: If backend URL is provided without /api/v1 (e.g. https://xyz.onrender.com),
+// normalize it so requests always reach FastAPI's versioned endpoints.
+if (API_URL.startsWith("http")) {
+  API_URL = API_URL.replace(/\/+$/, "");
+  if (!API_URL.endsWith("/api/v1")) {
+    if (API_URL.endsWith("/api")) {
+      API_URL += "/v1";
+    } else {
+      API_URL += "/api/v1";
+    }
+  }
+}
 
 const client = axios.create({
   baseURL: API_URL,

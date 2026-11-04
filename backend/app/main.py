@@ -80,6 +80,15 @@ app.include_router(imports_router, prefix=f"{settings.API_V1_STR}/imports", tags
 app.include_router(ai_router, prefix=f"{settings.API_V1_STR}/ai", tags=["AI Services"])
 app.include_router(journal_router, prefix=f"{settings.API_V1_STR}/journal", tags=["Daily Journal"])
 
+# Route aliases without /api/v1 (prevents 404 if API_URL was configured without /api/v1 prefix)
+app.include_router(auth_router, prefix="/auth", include_in_schema=False)
+app.include_router(trades_router, prefix="/trades", include_in_schema=False)
+app.include_router(accounts_router, prefix="/accounts", include_in_schema=False)
+app.include_router(capital_transactions_router, prefix="/capital-transactions", include_in_schema=False)
+app.include_router(imports_router, prefix="/imports", include_in_schema=False)
+app.include_router(ai_router, prefix="/ai", include_in_schema=False)
+app.include_router(journal_router, prefix="/journal", include_in_schema=False)
+
 @app.get("/")
 def read_root():
     return {"message": f"Welcome to {settings.PROJECT_NAME} API. Access API docs at /docs"}
