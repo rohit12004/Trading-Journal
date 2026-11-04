@@ -26,15 +26,22 @@ router = APIRouter()
 
 def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
     """
-    Utility helper to set access and refresh tokens in HTTP-only, SameSite=Lax cookies.
+    Utility helper to set access and refresh tokens in HTTP-only cookies.
+    Uses SameSite=None + Secure=True for cross-origin production (e.g. Vercel <-> Render),
+    and SameSite=Lax + Secure=False for local development.
     """
+    import os
+    is_prod = os.getenv("ENVIRONMENT", "").lower() == "production" or bool(os.getenv("RENDER"))
+    samesite_val = "none" if is_prod else "lax"
+    secure_val = True if is_prod else False
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
-        secure=False,  # Set to True in production (HTTPS)
+        samesite=samesite_val,
+        secure=secure_val,
         path="/"
     )
     response.set_cookie(
@@ -42,8 +49,8 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
         value=refresh_token,
         httponly=True,
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-        samesite="lax",
-        secure=False,  # Set to True in production (HTTPS)
+        samesite=samesite_val,
+        secure=secure_val,
         path="/"
     )
 
@@ -51,8 +58,13 @@ def clear_auth_cookies(response: Response):
     """
     Utility helper to clear authorization cookies.
     """
-    response.delete_cookie("access_token", path="/")
-    response.delete_cookie("refresh_token", path="/")
+    import os
+    is_prod = os.getenv("ENVIRONMENT", "").lower() == "production" or bool(os.getenv("RENDER"))
+    samesite_val = "none" if is_prod else "lax"
+    secure_val = True if is_prod else False
+
+    response.delete_cookie("access_token", path="/", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("refresh_token", path="/", samesite=samesite_val, secure=secure_val)
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(

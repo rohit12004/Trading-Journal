@@ -35,7 +35,13 @@ export const useAuthStore = create((set) => ({
       email,
       otp_code: otpCode,
     });
-    // Cookies are set automatically by browser; now fetch profile
+    if (response.data?.access_token && typeof window !== "undefined") {
+      localStorage.setItem("access_token", response.data.access_token);
+    }
+    if (response.data?.refresh_token && typeof window !== "undefined") {
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+    }
+    // Fetch profile
     const userResponse = await client.get("/auth/me");
     set({ user: userResponse.data });
     return userResponse.data;
@@ -51,13 +57,20 @@ export const useAuthStore = create((set) => ({
     params.append("username", email);
     params.append("password", password);
 
-    await client.post("/auth/login", params, {
+    const response = await client.post("/auth/login", params, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
 
-    // Cookies are set automatically; now fetch profile
+    if (response.data?.access_token && typeof window !== "undefined") {
+      localStorage.setItem("access_token", response.data.access_token);
+    }
+    if (response.data?.refresh_token && typeof window !== "undefined") {
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+    }
+
+    // Fetch profile
     const userResponse = await client.get("/auth/me");
     set({ user: userResponse.data });
     return userResponse.data;
@@ -69,6 +82,10 @@ export const useAuthStore = create((set) => ({
     } catch (error) {
       console.error("Logout request failed:", error);
     }
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+    }
     set({ user: null });
   },
 
@@ -78,7 +95,13 @@ export const useAuthStore = create((set) => ({
     return response.data;
   },
 
-  clearAuth: () => set({ user: null }),
+  clearAuth: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+    }
+    set({ user: null });
+  },
 }));
 
 // Listen for global logout events (like Token Refresh failures) to clear store

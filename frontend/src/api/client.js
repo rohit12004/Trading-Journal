@@ -17,10 +17,21 @@ if (API_URL.startsWith("http")) {
 
 const client = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Crucial: sends HTTP-only cookies automatically
+  withCredentials: true, // Sends cookies automatically when allowed by browser
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+// Request Interceptor: Attach Bearer token from localStorage as fallback when cross-origin cookies are blocked
+client.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("access_token");
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 // Response Interceptor: Token Rotation on 401
@@ -51,6 +62,11 @@ client.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then(() => {
+            // Update Authorization header with newly refreshed access token
+            const newToken = localStorage.getItem("access_token");
+            if (newToken) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
             return client(originalRequest);
           })
           .catch((err) => {
@@ -62,12 +78,21 @@ client.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call refresh endpoint. Cookies (refresh_token) are automatically attached by the browser.
-        await axios.post(
+        const storedRefreshToken = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+        // Call refresh endpoint with stored refresh_token in body (and withCredentials for cookies)
+        const refreshRes = await axios.post(
           `${API_URL}/auth/refresh`,
-          {},
+          storedRefreshToken ? { refresh_token: storedRefreshToken } : {},
           { withCredentials: true }
         );
+
+        if (refreshRes.data?.access_token) {
+          localStorage.setItem("access_token", refreshRes.data.access_token);
+          originalRequest.headers.Authorization = `Bearer ${refreshRes.data.access_token}`;
+        }
+        if (refreshRes.data?.refresh_token) {
+          localStorage.setItem("refresh_token", refreshRes.data.refresh_token);
+        }
 
         processQueue(null);
         isRefreshing = false;
@@ -77,6 +102,10 @@ client.interceptors.response.use(
         processQueue(refreshError);
         isRefreshing = false;
         
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+        }
         // Trigger global logout event to clear Zustand store state
         window.dispatchEvent(new Event("auth_logout"));
         return Promise.reject(refreshError);
