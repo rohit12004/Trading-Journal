@@ -10,8 +10,9 @@ logger = logging.getLogger("QuantCoachEmailService")
 
 def _send_smtp_email(to_email: str, subject: str, text_body: str, html_body: str) -> None:
     """
-    Helper function to send email via SMTP with support for STARTTLS (587) and SSL (465),
-    automatic password whitespace cleanup (for Google App Passwords), and Gmail sender alignment.
+    Standard SMTP email sender with support for STARTTLS (port 587) and SSL (port 465),
+    automatic password whitespace stripping (for Google App Passwords), and Gmail sender alignment.
+    Falls back to mock console output if SMTP credentials are missing or connection fails.
     """
     if not settings.EMAILS_ENABLED or not settings.SMTP_USER or not settings.SMTP_PASSWORD:
         logger.info("\n" + "="*60 +
@@ -22,7 +23,7 @@ def _send_smtp_email(to_email: str, subject: str, text_body: str, html_body: str
                     "\n" + "="*60 + "\n")
         return
 
-    # Clean Google app password by removing any spaces
+    # Clean app password by removing any spaces
     smtp_pass = settings.SMTP_PASSWORD.replace(" ", "").strip()
     smtp_user = settings.SMTP_USER.strip()
     
@@ -62,6 +63,7 @@ def _send_smtp_email(to_email: str, subject: str, text_body: str, html_body: str
                     f"\nSubject: {subject}" +
                     f"\nBody: {text_body}" +
                     "\n" + "="*60 + "\n")
+
 
 def send_otp_email(email: str, otp: str) -> None:
     """
@@ -103,6 +105,7 @@ def send_otp_email(email: str, otp: str) -> None:
     </html>
     """
     _send_smtp_email(email, subject, text_body, html_body)
+
 
 def send_reset_password_email(email: str, otp: str) -> None:
     """
