@@ -74,26 +74,37 @@ def register(
 ):
     """
     Register a new user (creates in inactive state and triggers email OTP).
+    If an unverified account already exists with this email, updates details and resends fresh OTP.
     """
     user = db.query(User).filter(User.email == user_in.email).first()
     if user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The user with this email already exists in the system.",
+        if user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The user with this email already exists in the system.",
+            )
+        # Account exists but was never verified: update credentials and resend a fresh OTP
+        password_hash = security.get_password_hash(user_in.password)
+        user.first_name = user_in.first_name
+        user.middle_name = user_in.middle_name
+        user.last_name = user_in.last_name
+        user.password_hash = password_hash
+        db.commit()
+        db.refresh(user)
+        db_user = user
+    else:
+        password_hash = security.get_password_hash(user_in.password)
+        db_user = User(
+            email=user_in.email,
+            first_name=user_in.first_name,
+            middle_name=user_in.middle_name,
+            last_name=user_in.last_name,
+            password_hash=password_hash,
+            is_active=False,  # Unverified users cannot log in yet
         )
-    
-    password_hash = security.get_password_hash(user_in.password)
-    db_user = User(
-        email=user_in.email,
-        first_name=user_in.first_name,
-        middle_name=user_in.middle_name,
-        last_name=user_in.last_name,
-        password_hash=password_hash,
-        is_active=False,  # Unverified users cannot log in yet
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
     
     # Generate OTP (6 digits)
     otp = f"{random.randint(100000, 999999)}"
@@ -101,7 +112,7 @@ def register(
     # Store OTP in Redis with 5-minute (300s) TTL
     redis_client.setex(f"otp:{db_user.email}", 300, otp)
     
-    # Mock send email
+    # Send email
     send_otp_email(db_user.email, otp)
     
     return db_user
