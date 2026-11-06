@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "sonner";
@@ -30,8 +30,15 @@ const AppleIcon = () => (
 );
 
 const Register = () => {
-  const register = useAuthStore((state) => state.register);
+  const { register, user } = useAuthStore();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect directly to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState({
     firstName: "",

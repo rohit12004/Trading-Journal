@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import client from "../api/client";
@@ -17,6 +18,7 @@ const Logo = () => (
 const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuthStore();
 
   const [email, setEmail] = useState(location.state?.email || "");
   const [otpCode, setOtpCode] = useState("");
@@ -25,6 +27,13 @@ const ResetPassword = () => {
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

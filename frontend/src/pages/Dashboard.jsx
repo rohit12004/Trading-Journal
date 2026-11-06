@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { Menu } from "lucide-react";
 import {
@@ -46,9 +47,21 @@ const DEFAULT_TRADE_FORM = {
   notes: "",
 };
 
+// ─── Valid tabs ───────────────────────────────────────────────────────────────
+const VALID_TABS = [
+  "Dashboard",
+  "Trades",
+  "History",
+  "Calendar",
+  "AICoach",
+  "DailyNotes",
+  "Profile & Settings",
+];
+
 // ─── Dashboard orchestrator ───────────────────────────────────────────────────
 const Dashboard = () => {
   const { user, logout, updateProfile } = useAuthStore();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // ── Server state ──────────────────────────────────────────────────────────
   const { data: trades = [] } = useTradesQuery();
@@ -59,10 +72,30 @@ const Dashboard = () => {
   const updateTradeMutation = useUpdateTradeMutation();
   const deleteTradeMutation = useDeleteTradeMutation();
 
-  // ── UI state ──────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  // ── UI state (Synced with URL history for mobile back gestures) ───────────
+  const currentTabParam = searchParams.get("tab");
+  const activeTab = VALID_TABS.includes(currentTabParam) ? currentTabParam : "Dashboard";
+
+  const setActiveTab = (tab) => {
+    if (tab === activeTab) return;
+    if (tab === "Dashboard") {
+      setSearchParams({}, { replace: false });
+    } else {
+      setSearchParams({ tab }, { replace: false });
+    }
+  };
+
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [tradeMode, setTradeMode] = useState("MANUAL"); // MANUAL or IMPORT
+
+  // Close mobile sidebar on back gesture
+  useEffect(() => {
+    const handlePopState = () => {
+      setIsMobileSidebarOpen(false);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // History filters
   const [historyPeriod, setHistoryPeriod] = useState("TODAY");

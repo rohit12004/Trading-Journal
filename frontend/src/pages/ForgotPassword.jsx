@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "sonner";
 import client from "../api/client";
 import coverImage from "../assets/login_cover.png";
@@ -15,8 +16,16 @@ const Logo = () => (
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

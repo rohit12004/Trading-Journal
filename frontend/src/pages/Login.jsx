@@ -21,7 +21,7 @@ const AppleIcon = () => (
 );
 
 const Login = () => {
-  const login = useAuthStore((state) => state.login);
+  const { login, user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,6 +29,13 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // If already authenticated, redirect directly to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +49,7 @@ const Login = () => {
     try {
       await login(email, password);
       toast.success("Successfully logged in!");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       console.error(err);
       const detail = err.response?.data?.detail;

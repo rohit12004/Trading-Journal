@@ -107,7 +107,7 @@ const VerifyOTP = () => {
       await verifyOtp(email, otpCode);
       toast.success("Verification successful! Auto-logging you in...");
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }, 1500);
     } catch (err) {
       console.error(err);
