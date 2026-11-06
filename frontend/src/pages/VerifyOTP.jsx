@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
 import coverImage from "../assets/login_cover.png";
 
 const Logo = () => (
-  <svg className="w-10 h-10 mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="50" cy="50" r="28" stroke="#E05638" strokeWidth="3.5" strokeDasharray="6 4" />
     <path d="M35 65C35 50 42 40 50 40C58 40 65 50 65 65" stroke="#E05638" strokeWidth="4.5" strokeLinecap="round" />
     <path d="M42 65C42 55 46 50 50 50C54 50 58 55 58 65" stroke="#E05638" strokeWidth="3.5" strokeLinecap="round" />
@@ -141,23 +141,23 @@ const VerifyOTP = () => {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
+    <div className="h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
       
       {/* Left Column: Form Area */}
-      <div className="flex flex-col justify-between items-center py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
-        <div /> {/* Spacer */}
+      <div className="flex flex-col justify-between items-center py-3 sm:py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full min-h-0 bg-white overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="hidden sm:block" /> {/* Spacer */}
         
-        {/* Main Content Area (Increased width to match login/register) */}
-        <div className="w-full max-w-md flex flex-col items-center">
+        {/* Main Content Area */}
+        <div className="w-full max-w-md flex flex-col items-center my-auto">
           <Logo />
-          <h2 className="text-2xl font-bold tracking-tight text-neutral-950 mb-1">Verify Email</h2>
-          <p className="text-neutral-500 text-xs mb-6 text-center">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-950 mb-0.5 sm:mb-1">Verify Email</h2>
+          <p className="text-neutral-500 text-[11px] sm:text-xs mb-3 sm:mb-5 text-center">
             We sent a verification code to <br />
             <span className="text-neutral-950 font-bold">{email || "your registered email"}</span>
           </p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="w-full space-y-5">
+          <form onSubmit={handleSubmit} className="w-full space-y-3 sm:space-y-4">
             
             {/* OTP Digit Inputs */}
             <div className="flex justify-between gap-1.5 sm:gap-2.5 max-w-full" onPaste={handlePaste}>
@@ -171,7 +171,7 @@ const VerifyOTP = () => {
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   disabled={timer <= 0 || loading}
-                  className="w-10 sm:w-12 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg text-neutral-950 transition-all outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-9 h-11 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg text-neutral-950 transition-all outline-none disabled:opacity-30 disabled:cursor-not-allowed"
                 />
               ))}
             </div>
@@ -190,7 +190,7 @@ const VerifyOTP = () => {
             <button
               type="submit"
               disabled={loading || timer <= 0}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="w-full py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
@@ -201,7 +201,7 @@ const VerifyOTP = () => {
           </form>
 
           {/* Resend button */}
-          <div className="text-center mt-5 text-xs text-neutral-500">
+          <div className="text-center mt-3 sm:mt-5 text-xs text-neutral-500">
             Didn't receive the code?{" "}
             <button
               onClick={handleResend}
@@ -221,7 +221,7 @@ const VerifyOTP = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-[10px] text-neutral-400 mt-5 leading-relaxed max-w-[280px]">
+        <div className="text-center text-[10px] text-neutral-400 mt-2 sm:mt-4 leading-relaxed max-w-[280px]">
           By continuing you agree to our{" "}
           <a href="#" className="underline hover:text-neutral-600">Terms & Conditions</a>{" "}
           and acknowledge our{" "}

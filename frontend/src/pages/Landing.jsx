@@ -11,15 +11,12 @@ import {
   Zap, 
   Calendar, 
   Sparkles,
-  Menu,
-  X,
 } from "lucide-react";
 
 const Landing = () => {
   const { user } = useAuthStore();
   const [isScrolled, setIsScrolled] = useState(false);
   const [featuresOpen, setFeaturesOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Track scroll position for sticky transparent navbar
   useEffect(() => {
@@ -57,11 +54,11 @@ const Landing = () => {
       <header 
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
           isScrolled 
-            ? "bg-neutral-950/85 backdrop-blur-md border-b border-white/5 py-4 shadow-xl" 
-            : "bg-transparent border-b border-transparent py-6"
+            ? "bg-neutral-950/85 backdrop-blur-md border-b border-white/5 py-3 sm:py-4 shadow-xl" 
+            : "bg-transparent border-b border-transparent py-4 sm:py-6"
         }`}
       >
-        <div className="w-full px-6 md:px-12 lg:px-20 flex justify-between items-center">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-20 flex justify-between items-center">
           <div className="flex items-center gap-2">
             {/* Custom orange sun logo */}
             <svg className="w-7 h-7" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,11 +67,11 @@ const Landing = () => {
               <path d="M42 65C42 55 46 50 50 50C54 50 58 55 58 65" stroke="#E05638" strokeWidth="4" strokeLinecap="round" />
               <circle cx="50" cy="27" r="5" fill="#E05638" />
             </svg>
-            <span className="text-lg font-bold tracking-tight text-white">QuantCoach AI</span>
+            <span className="text-base sm:text-lg font-bold tracking-tight text-white">QuantCoach AI</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-10 text-sm font-medium text-neutral-400">
-            {/* Features Dropdown */}
+            {/* Features Dropdown on desktop */}
             <div className="relative features-dropdown-container">
               <button 
                 onClick={() => setFeaturesOpen(!featuresOpen)}
@@ -134,95 +131,25 @@ const Landing = () => {
             </div>
           </nav>
 
+          {/* Action button: ONLY ONE main button "Start Now" directing to /login */}
           <div className="flex items-center gap-3">
             {user ? (
               <Link
                 to="/dashboard"
-                className="px-4 sm:px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-lg hover:shadow-violet-500/20 transition-all"
+                className="px-4 sm:px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-lg hover:shadow-violet-500/20 transition-all active:scale-95"
               >
                 Dashboard
               </Link>
             ) : (
-              <div className="hidden sm:flex items-center gap-4">
-                <Link
-                  to="/login"
-                  className="text-neutral-400 hover:text-white text-sm font-semibold transition-colors"
-                >
-                  Log In
-                </Link>
-                <Link
-                  to="/login"
-                  className="px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-sm font-semibold shadow-lg hover:shadow-violet-500/20 transition-all"
-                >
-                  Start Now
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile Hamburger Toggle Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Dropdown Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden px-6 py-4 bg-neutral-950/95 backdrop-blur-xl border-b border-white/10 space-y-4 animate-fade-in text-left">
-            <div className="space-y-2 border-b border-white/5 pb-3">
-              <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">Features</span>
-              <div className="space-y-1 text-xs text-neutral-300">
-                <div className="flex items-center gap-2 py-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-violet-400" />
-                  <span>Manual Trade Logger</span>
-                </div>
-                <div className="flex items-center gap-2 py-1">
-                  <Check className="w-3.5 h-3.5 text-violet-400" />
-                  <span>Statement Importer</span>
-                </div>
-                <div className="flex items-center gap-2 py-1">
-                  <BrainCircuit className="w-3.5 h-3.5 text-violet-400" />
-                  <span>Interactive Dashboard</span>
-                </div>
-                <div className="flex items-center gap-2 py-1">
-                  <Calendar className="w-3.5 h-3.5 text-violet-400" />
-                  <span>Trading Calendar</span>
-                </div>
-              </div>
-            </div>
-
-            {!user ? (
-              <div className="flex flex-col gap-2 pt-1">
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center bg-white/5 hover:bg-white/10 text-white rounded-lg text-xs font-semibold border border-white/10 transition-colors"
-                >
-                  Log In
-                </Link>
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg text-xs font-semibold shadow-lg transition-all"
-                >
-                  Start Now
-                </Link>
-              </div>
-            ) : (
               <Link
-                to="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block w-full py-2.5 text-center bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg text-xs font-semibold shadow-lg"
+                to="/login"
+                className="px-4 sm:px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-lg hover:shadow-violet-500/20 transition-all active:scale-95"
               >
-                Go to Dashboard
+                Start Now
               </Link>
             )}
           </div>
-        )}
+        </div>
       </header>
 
       {/* Hero Section (Full Width Grid) */}
@@ -258,8 +185,54 @@ const Landing = () => {
               </Link>
             </div>
 
+            {/* Core Features Shortly on Page */}
+            <div className="pt-2 space-y-2.5">
+              <p className="text-[10px] font-bold text-violet-400 uppercase tracking-widest">Core Features</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 max-w-xl">
+                <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/5 rounded-xl p-2.5 hover:border-violet-500/25 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Manual Trade Logger</h4>
+                    <p className="text-[10px] text-neutral-400 leading-tight mt-0.5">Log Stocks, Options &amp; Futures with custom tags.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/5 rounded-xl p-2.5 hover:border-violet-500/25 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Statement Importer</h4>
+                    <p className="text-[10px] text-neutral-400 leading-tight mt-0.5">Bulk upload broker F&amp;O statements like Groww.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/5 rounded-xl p-2.5 hover:border-violet-500/25 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5">
+                    <BrainCircuit className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Interactive Dashboard</h4>
+                    <p className="text-[10px] text-neutral-400 leading-tight mt-0.5">Drill down on Net P&amp;L, Win Rate &amp; balances.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 bg-white/[0.03] border border-white/5 rounded-xl p-2.5 hover:border-violet-500/25 transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5">
+                    <Calendar className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Trading Calendar</h4>
+                    <p className="text-[10px] text-neutral-400 leading-tight mt-0.5">Color-coded daily green &amp; red session grid.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Tags (TradeZella style) */}
-            <div className="pt-6 space-y-2.5">
+            <div className="pt-2 space-y-2">
               <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Everything in one place</p>
               <div className="flex flex-wrap gap-2 max-w-xl">
                 {[

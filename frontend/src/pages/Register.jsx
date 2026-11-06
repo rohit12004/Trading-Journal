@@ -6,7 +6,7 @@ import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import coverImage from "../assets/login_cover.png";
 
 const Logo = () => (
-  <svg className="w-10 h-10 mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="50" cy="50" r="28" stroke="#E05638" strokeWidth="3.5" strokeDasharray="6 4" />
     <path d="M35 65C35 50 42 40 50 40C58 40 65 50 65 65" stroke="#E05638" strokeWidth="4.5" strokeLinecap="round" />
     <path d="M42 65C42 55 46 50 50 50C54 50 58 55 58 65" stroke="#E05638" strokeWidth="3.5" strokeLinecap="round" />
@@ -95,23 +95,50 @@ const Register = () => {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
+    <div className="h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
       
       {/* Left Column: Form Area */}
-      <div className="flex flex-col justify-between items-center py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
-        <div /> {/* Spacer */}
+      <div className="flex flex-col justify-between items-center py-2 sm:py-5 px-4 sm:px-12 md:px-16 lg:px-24 h-full min-h-0 bg-white overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="hidden sm:block" /> {/* Spacer */}
         
-        {/* Main Content Area (Increased from max-w-sm to max-w-md) */}
-        <div className="w-full max-w-md flex flex-col items-center">
+        {/* Main Content Area */}
+        <div className="w-full max-w-md flex flex-col items-center my-auto">
           {/* Logo & Headings */}
           <Logo />
-          <h2 className="text-2xl font-bold tracking-tight text-neutral-950 mb-1">Create Account</h2>
-          <p className="text-neutral-500 text-xs mb-6 text-center">Start tracking your trading edge today.</p>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-950 mb-0.5 sm:mb-1">Create Account</h2>
+          <p className="text-neutral-500 text-[11px] sm:text-xs mb-2 sm:mb-3 text-center">Start tracking your trading edge today.</p>
+
+          {/* Demo Credentials Box */}
+          <div className="w-full bg-amber-50/90 border border-amber-200/90 rounded-xl p-2 sm:p-2.5 mb-2 sm:mb-3 text-xs text-amber-950 shadow-sm">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center gap-1.5 font-bold text-[11px] text-amber-900">
+                <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                Demo Credentials Available
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigate("/login", { state: { email: "demo@gmail.com" } });
+                }}
+                className="text-[10px] font-bold text-violet-700 hover:text-violet-900 bg-violet-100 hover:bg-violet-200/80 px-2 py-0.5 rounded transition-colors"
+              >
+                Log in with Demo
+              </button>
+            </div>
+            <div className="text-[11px] flex flex-wrap gap-x-3 gap-y-0.5 text-amber-900 font-mono">
+              <span><strong className="font-sans font-semibold text-amber-950">Email:</strong> demo@gmail.com</span>
+              <span><strong className="font-sans font-semibold text-amber-950">Pass:</strong> Demo@123</span>
+            </div>
+            <p className="text-[10px] text-amber-800/90 mt-0.5 leading-snug">
+              Note: Database is on a free tier and may require initial time to wake up.
+            </p>
+          </div>
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="w-full space-y-3">
+          <form onSubmit={handleSubmit} className="w-full space-y-2 sm:space-y-2.5">
             {/* Names row: compact grid layout */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col space-y-1">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+              <div className="flex flex-col space-y-0.5">
                 <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">First Name *</label>
                 <input
                   type="text"
@@ -119,12 +146,12 @@ const Register = () => {
                   value={formData.firstName}
                   onChange={handleChange}
                   placeholder="John"
-                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2 py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
+                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2 py-1 sm:py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
                   required
                 />
               </div>
 
-              <div className="flex flex-col space-y-1">
+              <div className="flex flex-col space-y-0.5">
                 <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Middle</label>
                 <input
                   type="text"
@@ -132,11 +159,11 @@ const Register = () => {
                   value={formData.middleName}
                   onChange={handleChange}
                   placeholder="R."
-                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2 py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
+                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2 py-1 sm:py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
                 />
               </div>
 
-              <div className="flex flex-col space-y-1">
+              <div className="flex flex-col space-y-0.5">
                 <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Last Name</label>
                 <input
                   type="text"
@@ -144,13 +171,13 @@ const Register = () => {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2 py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
+                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2 py-1 sm:py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
                 />
               </div>
             </div>
 
             {/* Email */}
-            <div className="flex flex-col space-y-1">
+            <div className="flex flex-col space-y-0.5">
               <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Email address *</label>
               <input
                 type="email"
@@ -158,14 +185,14 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Example@gmail.com"
-                className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
+                className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-1 sm:py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
                 required
               />
             </div>
 
             {/* Password Row */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col space-y-1">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+              <div className="flex flex-col space-y-0.5">
                 <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Password *</label>
                 <div className="relative">
                   <input
@@ -174,7 +201,7 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg pl-3 pr-8 py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
+                    className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg pl-2.5 pr-7 sm:pl-3 sm:pr-8 py-1 sm:py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
                     required
                   />
                   <button
@@ -187,7 +214,7 @@ const Register = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col space-y-1">
+              <div className="flex flex-col space-y-0.5">
                 <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Confirm Password *</label>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -195,20 +222,20 @@ const Register = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
+                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs outline-none transition-all placeholder-slate-400 text-slate-800"
                   required
                 />
               </div>
             </div>
             
-            <p className="text-[9px] text-neutral-400 mt-1 leading-normal">
-              Password must be 8+ characters and contain 1 uppercase, 1 lowercase, and 1 digit.
+            <p className="text-[9px] text-neutral-400 leading-tight">
+              Password must be 8+ characters with 1 uppercase, 1 lowercase, and 1 digit.
             </p>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 shadow-sm"
+              className="w-full py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-1 shadow-sm"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
@@ -219,7 +246,7 @@ const Register = () => {
           </form>
 
           {/* Links */}
-          <div className="text-center mt-4 text-xs text-neutral-500">
+          <div className="text-center mt-2.5 sm:mt-3.5 text-xs text-neutral-500">
             Already have an account?{" "}
             <Link to="/login" className="text-neutral-950 font-bold hover:underline">
               Log in
@@ -228,7 +255,7 @@ const Register = () => {
         </div>
 
         {/* Footer info */}
-        <div className="text-center text-[10px] text-neutral-400 mt-5 leading-relaxed max-w-[280px]">
+        <div className="text-center text-[10px] text-neutral-400 mt-2 sm:mt-4 leading-relaxed max-w-[280px]">
           By continuing you agree to our{" "}
           <a href="#" className="underline hover:text-neutral-600">Terms & Conditions</a>{" "}
           and acknowledge our{" "}

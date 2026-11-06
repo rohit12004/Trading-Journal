@@ -6,7 +6,7 @@ import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import coverImage from "../assets/login_cover.png";
 
 const Logo = () => (
-  <svg className="w-10 h-10 mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="50" cy="50" r="28" stroke="#E05638" strokeWidth="3.5" strokeDasharray="6 4" />
     <path d="M35 65C35 50 42 40 50 40C58 40 65 50 65 65" stroke="#E05638" strokeWidth="4.5" strokeLinecap="round" />
     <path d="M42 65C42 55 46 50 50 50C54 50 58 55 58 65" stroke="#E05638" strokeWidth="3.5" strokeLinecap="round" />
@@ -61,37 +61,65 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
+    <div className="h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-white text-neutral-900 grid grid-cols-1 md:grid-cols-2">
       
       {/* Left Column: Form Area */}
-      <div className="flex flex-col justify-between items-center py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full bg-white overflow-y-auto">
-        <div /> {/* Spacer */}
+      <div className="flex flex-col justify-between items-center py-2.5 sm:py-6 px-4 sm:px-12 md:px-16 lg:px-24 h-full min-h-0 bg-white overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="hidden sm:block" /> {/* Spacer */}
         
-        {/* Main Content Area (Increased from max-w-sm to max-w-md) */}
-        <div className="w-full max-w-md flex flex-col items-center">
+        {/* Main Content Area */}
+        <div className="w-full max-w-md flex flex-col items-center my-auto">
           {/* Logo & Headings */}
           <Logo />
-          <h2 className="text-2xl font-bold tracking-tight text-neutral-950 mb-1">Welcome Back!</h2>
-          <p className="text-neutral-500 text-xs mb-6 text-center">Sign in to continue where you left off.</p>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-950 mb-0.5 sm:mb-1">Welcome Back!</h2>
+          <p className="text-neutral-500 text-[11px] sm:text-xs mb-2 sm:mb-4 text-center">Sign in to continue where you left off.</p>
+
+          {/* Demo Credentials Box */}
+          <div className="w-full bg-amber-50/90 border border-amber-200/90 rounded-xl p-2.5 sm:p-3 mb-2.5 sm:mb-4 text-xs text-amber-950 shadow-sm">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-[11px] text-amber-900">
+                <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                Demo Credentials
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("demo@gmail.com");
+                  setPassword("Demo@123");
+                  toast.success("Demo credentials loaded!");
+                }}
+                className="text-[10px] font-bold text-violet-700 hover:text-violet-900 bg-violet-100 hover:bg-violet-200/80 px-2 py-0.5 rounded transition-colors"
+              >
+                Auto Fill
+              </button>
+            </div>
+            <div className="text-[11px] flex flex-wrap gap-x-3 gap-y-0.5 text-amber-900 font-mono">
+              <span><strong className="font-sans font-semibold text-amber-950">Email:</strong> demo@gmail.com</span>
+              <span><strong className="font-sans font-semibold text-amber-950">Pass:</strong> Demo@123</span>
+            </div>
+            <p className="text-[10px] text-amber-800/90 mt-1 leading-snug">
+              Note: Database is on a free tier and may require initial time to wake up.
+            </p>
+          </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="w-full space-y-4">
+          <form onSubmit={handleSubmit} className="w-full space-y-2.5 sm:space-y-4">
             <div className="flex flex-col space-y-1">
-              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Email address</label>
+              <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">Email address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Example@gmail.com"
-                className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-2 text-xs outline-none transition-all placeholder-slate-400"
+                className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg px-3 py-1.5 sm:py-2 text-xs outline-none transition-all placeholder-slate-400"
                 required
               />
             </div>
 
             <div className="flex flex-col space-y-1">
               <div className="flex justify-between items-center">
-                <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Password</label>
-                <Link to="/forgot-password" className="text-[11px] font-semibold text-violet-600 hover:text-violet-500 transition-colors">
+                <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">Password</label>
+                <Link to="/forgot-password" className="text-[10px] sm:text-[11px] font-semibold text-violet-600 hover:text-violet-500 transition-colors">
                   Forgot Password?
                 </Link>
               </div>
@@ -101,7 +129,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg pl-3 pr-9 py-2 text-xs outline-none transition-all placeholder-slate-400"
+                  className="w-full border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 rounded-lg pl-3 pr-9 py-1.5 sm:py-2 text-xs outline-none transition-all placeholder-slate-400"
                   required
                 />
                 <button
@@ -117,7 +145,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+              className="w-full py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
@@ -128,7 +156,7 @@ const Login = () => {
           </form>
 
           {/* Links */}
-          <div className="text-center mt-5 text-xs text-neutral-500">
+          <div className="text-center mt-3 sm:mt-5 text-xs text-neutral-500">
             Don't have account yet?{" "}
             <Link to="/register" className="text-neutral-950 font-bold hover:underline">
               Sign up
@@ -137,7 +165,7 @@ const Login = () => {
         </div>
 
         {/* Footer info */}
-        <div className="text-center text-[10px] text-neutral-400 mt-6 leading-relaxed max-w-[280px]">
+        <div className="text-center text-[10px] text-neutral-400 mt-2 sm:mt-4 leading-relaxed max-w-[280px]">
           By continuing you agree to our{" "}
           <a href="#" className="underline hover:text-neutral-600">Terms & Conditions</a>{" "}
           and acknowledge our{" "}
