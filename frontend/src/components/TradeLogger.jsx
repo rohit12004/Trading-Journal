@@ -3,6 +3,9 @@ import { Plus, Mic, Square, Loader2 } from "lucide-react";
 import { useRefineNotesMutation, useVoiceLogMutation } from "../hooks/useAIQuery";
 import { toast } from "sonner";
 
+// Feature flag: set to false to present 'Under Development' view for deployment
+const ENABLE_VOICE_LOGGING = false;
+
 const TradeLogger = ({ tradeForm, setTradeForm, lotSizes, handleLogTradeSubmit }) => {
   const refineMutation = useRefineNotesMutation();
   const voiceMutation = useVoiceLogMutation();
@@ -185,56 +188,75 @@ const TradeLogger = ({ tradeForm, setTradeForm, lotSizes, handleLogTradeSubmit }
       </h3>
 
       {/* Voice Log Recorder Panel */}
-      <div className="mt-3.5 p-3.5 bg-violet-50/40 border border-violet-100 rounded-xl flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`w-2.5 h-2.5 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-slate-300'}`}></div>
-            <span className="text-[11px] font-bold text-slate-700">Voice-Based Logging (Gemini 3.5 Flash)</span>
-          </div>
-          {isRecording && (
-            <span className="text-[11px] font-mono font-bold text-red-600 animate-pulse">
-              Recording: {formatDuration(recordingDuration)}
+      {!ENABLE_VOICE_LOGGING ? (
+        <div className="mt-3.5 p-3 sm:p-3.5 bg-slate-50 border border-slate-200/90 rounded-xl flex flex-col gap-1.5 text-left">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 flex-shrink-0">
+                <Mic className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs font-bold text-slate-800">Voice-Based Logging</span>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200 tracking-wide flex-shrink-0">
+              In Development
             </span>
+          </div>
+          <p className="text-[11px] text-slate-500 leading-snug">
+            Note: Voice-based trade logging is currently in development. Please log your trades manually using the form below.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-3.5 p-3.5 bg-violet-50/40 border border-violet-100 rounded-xl flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-slate-300'}`}></div>
+              <span className="text-[11px] font-bold text-slate-700">Voice-Based Logging (Gemini 3.5 Flash)</span>
+            </div>
+            {isRecording && (
+              <span className="text-[11px] font-mono font-bold text-red-600 animate-pulse">
+                Recording: {formatDuration(recordingDuration)}
+              </span>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2.5">
+            {!isRecording ? (
+              <button
+                type="button"
+                onClick={startRecording}
+                disabled={voiceMutation.isPending}
+                className="flex-1 py-1.5 bg-violet-600 hover:bg-violet-750 disabled:opacity-50 text-white rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-violet-200 hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <Mic className="w-3.5 h-3.5" />
+                Start Recording
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={stopRecording}
+                className="flex-1 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <Square className="w-3.5 h-3.5 fill-white animate-pulse" />
+                Stop & Process
+              </button>
+            )}
+          </div>
+
+          {voiceMutation.isPending && (
+            <div className="flex items-center gap-1.5 text-[11px] text-violet-650 font-bold justify-center py-0.5">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-600" />
+              <span>Gemini is listening & extracting trade parameters...</span>
+            </div>
+          )}
+
+          {voiceLogTranscript && (
+            <div className="mt-1 p-2 bg-white border border-slate-100 rounded-lg text-[10px] text-slate-500 leading-relaxed max-h-16 overflow-y-auto shadow-inner light-scroll">
+              <strong className="text-slate-700 block mb-0.5">AI Transcript:</strong>
+              "{voiceLogTranscript}"
+            </div>
           )}
         </div>
-        
-        <div className="flex items-center gap-2.5">
-          {!isRecording ? (
-            <button
-              type="button"
-              onClick={startRecording}
-              disabled={voiceMutation.isPending}
-              className="flex-1 py-1.5 bg-violet-600 hover:bg-violet-750 disabled:opacity-50 text-white rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-violet-200 hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <Mic className="w-3.5 h-3.5" />
-              Start Recording
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={stopRecording}
-              className="flex-1 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
-            >
-              <Square className="w-3.5 h-3.5 fill-white animate-pulse" />
-              Stop & Process
-            </button>
-          )}
-        </div>
-
-        {voiceMutation.isPending && (
-          <div className="flex items-center gap-1.5 text-[11px] text-violet-650 font-bold justify-center py-0.5">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-600" />
-            <span>Gemini is listening & extracting trade parameters...</span>
-          </div>
-        )}
-
-        {voiceLogTranscript && (
-          <div className="mt-1 p-2 bg-white border border-slate-100 rounded-lg text-[10px] text-slate-500 leading-relaxed max-h-16 overflow-y-auto shadow-inner light-scroll">
-            <strong className="text-slate-700 block mb-0.5">AI Transcript:</strong>
-            "{voiceLogTranscript}"
-          </div>
-        )}
-      </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-3.5 mt-3 flex-1 text-left">
 
